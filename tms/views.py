@@ -1,7 +1,6 @@
 import bcrypt
-from flask import Flask, jsonify, render_template, request, flash
-from .models import Person, User
-
+from flask import Flask, jsonify, redirect, render_template, request, flash, session, url_for
+from .models import Person, User, tms_db
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
 salt = bcrypt.gensalt()
@@ -38,27 +37,43 @@ def register():
 @app.route("/login", methods=["POST","GET"])
 def login():
     if request.method == "POST":
-        
-        first_name = request.form["first_name"]
-        last_name = request.form["last_name"]
         email = request.form["email"]
-        phone = request.form["phone"]
-        job_title = request.form["job_title"]
-            
-        person = Person(first_name, last_name, email, phone, job_title)
-
-        response = person.create_person(person)
-        if response == False:
-            flash("E-Mail already exists.")
-            return render_template("register.html")
-        else:
-            flash("Successfully registrated.")
-            return render_template("login.html")
+        password = request.form["password"].encode('utf-8')
+                                                    
+        with tms_db.session() as tx:
+            result = tx.run("MATCH (u:user) where u.email = $email return u.password, u.email", email=email)
+            record = result.single()
+            if record:
+                if bcrypt.checkpw(password, record['u.password']):
+                    flash("Successfully logged in.")
+                    session['user'] = email
+                    return redirect(url_for("user"))
+                else:
+                    flash("Wrong password")
+                    return render_template("login.html")
+            else:
+                    flash("User does not exist") 
+                    return render_template("login.html")
         
     elif request.method == "GET":
+        if "user" in session:
+            return redirect(url_for("user"))
+        
         return render_template("login.html")
-
     
+@app.route("/user")
+def user():
+    if "user" in session:
+        email = session["user"]
+        return render_template("user.html")
+    else:
+        flash("Please log in.")
+        return redirect(url_for("login"))
+
+@app.route("/logout")
+def logout():
+    session.pop("user", None)
+    return redirect(url_for("login"))
 
 
 

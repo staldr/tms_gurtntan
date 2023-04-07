@@ -1,10 +1,12 @@
 {% extends "base.html" %}
-{% block title %}Homepage{% endblock %}
+{% block title %}Profile{% endblock %}
 {% block content %}
-
 {% for message in get_flashed_messages() %}
-    {{ message }}
+{{ message }}
 {% endfor %}
+
+<h1>Welcome, {{ session['user'] }}!</h1>
+
 
 
 {% endblock %}
