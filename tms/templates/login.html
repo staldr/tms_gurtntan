@@ -1,21 +1,38 @@
 {% extends "base.html" %}
 {% block title %}Register{% endblock %}
 {% block content %}
-{% for message in get_flashed_messages() %}
-{{ message }}
-{% endfor %}
-<h3>Login</h3>
-    <form action="{{ url_for('login') }}" method="post">
-        <dl>
-            <dt>Email</dt>
-            <dd><input type="text" size="30" name="email"></dd>
-        </dl>
-        <dl>
-            <dt>Password</dt>
-            <dd><input type="password" size="30" name="password"></dd>
-        </dl>
-        <input type="submit" value="Login">
-    </form>
+<div class="col-sm-3 text-left">
+    <div class="row justify-content-start">
+
+        <h2>Login</h2>
+
+        <form action="{{ url_for('login') }}" method="post">
+
+            <div class="col-12">
+                <label class="form-label">Email</label>
+                <input type="text" class="form-control" name="email" required>
+            </div>
+            <div class="col-12">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-control" name="password" required>
+            </div>
+
+            <div class="col-12" style="padding-top: 10px;">
+                <button type="submit" class="btn btn">Login</button>
+            </div>
+
+        </form>
+    </div>
+    <div class="row justify-content-start" style="padding-top: 10px;">
+
+        {% for message in get_flashed_messages() %}
+        <div class="alert alert-info" role="alert">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
 
 
 {% endblock %}

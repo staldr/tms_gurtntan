@@ -1,6 +1,6 @@
 import bcrypt
 from flask import Flask, jsonify, redirect, render_template, request, flash, session, url_for
-from .models import Person, User, tms_db
+from .models import *
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
 salt = bcrypt.gensalt()
@@ -45,15 +45,14 @@ def login():
             record = result.single()
             if record:
                 if bcrypt.checkpw(password, record['u.password']):
-                    flash("Successfully logged in.")
                     session['user'] = email
                     return redirect(url_for("user"))
                 else:
-                    flash("Wrong password")
-                    return render_template("login.html")
+                    flash("Invalid password.")
+                    return redirect(url_for("login"))
             else:
-                    flash("User does not exist") 
-                    return render_template("login.html")
+                    flash("User does not exist.") 
+                    return redirect(url_for("login"))
         
     elif request.method == "GET":
         if "user" in session:
@@ -64,8 +63,9 @@ def login():
 @app.route("/user")
 def user():
     if "user" in session:
-        email = session["user"]
-        return render_template("user.html")
+        result = find_person_by_email(session['user'])
+        user = dict(result)
+        return render_template("user.html", user=user)
     else:
         flash("Please log in.")
         return redirect(url_for("login"))
@@ -75,5 +75,7 @@ def logout():
     session.pop("user", None)
     return redirect(url_for("login"))
 
-
+@app.route("/explore")
+def explore():
+    return render_template("explore.html")
 

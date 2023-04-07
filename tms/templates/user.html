@@ -8,5 +8,31 @@
 <h1>Welcome, {{ session['user'] }}!</h1>
 
 
+<div class="container">
+    <table class="table table-sm">
+        <tbody>
+            <tr>
+                <th>First Name</th>
+                <td>{{ user.first_name }}</td>
+            </tr>
+            <tr>
+                <th>Last Name</th>
+                <td>{{ user.last_name }}</td>
+            </tr>
+            <tr>
+                <th>Phone</th>
+                <td>{{ user.phone }}</td>
+            </tr>
+            <tr>
+                <th>Email</th>
+                <td>{{ user.email }}</td>
+            </tr>
+            <tr>
+                <th>Job Title</th>
+                <td>{{ user.job_title }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 
 {% endblock %}

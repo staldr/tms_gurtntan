@@ -1,26 +1,52 @@
 {% extends "base.html" %}
 {% block title %}Register{% endblock %}
 {% block content %}
-<h3>Register</h3>
-    <form action="{{ url_for('register') }}" method="post">
-        <dl>
-            <dt>First Name</dt>
-            <dd><input type="text" size="30" name="first_name"></dd>
-            <dt>Name</dt>
-            <dd><input type="text" size="30" name="last_name"></dd>
-            <dt>Email</dt>
-            <dd><input type="text" size="30" name="email"></dd>
-            <dt>Phone</dt>
-            <dd><input type="text" size="30" name="phone"></dd>
-            <dt>Job Title</dt>
-            <dd><input type="text" size="30" name="job_title"></dd>
-            <dt>Password</dt>
-            <dd><input type="password" size="30" name="password"></dd>
-        </dl>
-        <input type="submit" value="Register">
-    </form>
+<div class="col-sm-3 text-left">
+    <div class="row justify-content-start">
 
-    {% for message in get_flashed_messages() %}
-        {{ message }}
-    {% endfor %}
+        <h2>Register</h2>
+
+        <form action="{{ url_for('register') }}" method="post">
+
+            <div class="col-12">
+                <label class="form-label">Email</label>
+                <input type="text" class="form-control" name="email" required>
+            </div>
+            <div class="col-12">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-control" name="password" required>
+            </div>
+
+            <div class="col-12">
+                <label class="form-label">First Name</label>
+                <input type="text" class="form-control" name="first_name" required>
+            </div>
+            <div class="col-12">
+                <label class="form-label">Last Name</label>
+                <input type="text" class="form-control" name="last_name" required>
+            </div>
+            <div class="col-12">
+                <label class="form-label">Phone</label>
+                <input type="tel" class="form-control" name="phone" required>
+            </div>
+            <div class="col-12">
+                <label class="form-label">Job Title</label>
+                <input type="text" class="form-control" name="job_title" required>
+            </div>
+
+            <div class="col-12" style="padding-top: 10px;">
+                <button type="submit" class="btn">Register</button>
+            </div>
+
+        </form>
+    </div>
+    <div class="row justify-content-start" style="padding-top: 10px;">
+
+        {% for message in get_flashed_messages() %}
+        <div class="alert alert-info" role="alert">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}

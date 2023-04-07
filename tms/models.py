@@ -91,19 +91,14 @@ class User(Person):
             super().create_person(user)
             cls.create_user(user)
             return True
-        
-def login(email, password):
+
+
+def find_person_by_email(email):
     with tms_db.session() as session:
-        result = session.run("MATCH (u:user) where u.email = $email return u", email=email)
-        record = result.single()
-        if record:
-            if password == record['u.password']:
-                return "success"
-            else:
-                return "wrong password"
-        else:
-            return "user not existing"
-        
+        result = session.run("MATCH (p:person) where p.email = $email return p", email=email)
+        record = result.single()["p"]
+        return record
+      
 
         
 
