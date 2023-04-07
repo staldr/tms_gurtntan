@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+{% block content %}
+{% for message in get_flashed_messages() %}
+{{ message }}
+{% endfor %}
+<h3>Login</h3>
+    <form action="{{ url_for('login') }}" method="post">
+        <dl>
+            <dt>Email</dt>
+            <dd><input type="text" size="30" name="email"></dd>
+        </dl>
+        <input type="submit" value="Login">
+    </form>
+
+
+{% endblock %}
