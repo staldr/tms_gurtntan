@@ -28,7 +28,7 @@ def register():
             flash("E-Mail already exists.")
             return render_template("register.html")
         else:
-            flash("Successfully registrated.")
+            flash("Successfully registrated. Please log in.")
             return render_template("login.html")
         
     elif request.method == "GET":
@@ -65,10 +65,38 @@ def user():
     if "user" in session:
         result = find_person_by_email(session['user'])
         user = dict(result)
-        return render_template("user.html", user=user)
+        tags = find_tags_by_email(session['user'])
+        tasks = find_tasks_by_email(session['user'])
+        skills = find_skills_by_email(session['user'])
+        
+        shared_skills = dict()
+        for skill in skills:
+            tag = skill['t'].get('name')
+            persons = find_person_with_shared_skills_by_email(tag,session['user'])
+            shared_skills[tag] = persons
+
+        tags_tasks = dict()       
+        shared_tasks = dict()
+        for task in tasks:
+            elementid = task['elementid(t)']
+            persons = find_persons_by_taskid(elementid)
+            shared_tasks[elementid] = persons
+            tags_s = find_tags_by_taskid(elementid)
+            tags_tasks[elementid] = tags_s
+
+        return render_template("user.html", user=user, tags=tags, tasks=tasks,skills=skills, shared_skills=shared_skills,shared_tasks=shared_tasks,tags_tasks=tags_tasks)
     else:
         flash("Please log in.")
         return redirect(url_for("login"))
+
+@app.route("/user/shared-skills/<tag>")  
+def shared_skills(tag):
+    tag = tag
+    email = "anneliese.braun@gmail.com"
+    persons = find_person_with_shared_skills_by_email(tag,email)
+    return render_template("shared-skills.html", persons=persons, tag=tag)
+
+
 
 @app.route("/logout")
 def logout():

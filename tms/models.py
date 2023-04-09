@@ -98,9 +98,46 @@ def find_person_by_email(email):
         result = session.run("MATCH (p:person) where p.email = $email return p", email=email)
         record = result.single()["p"]
         return record
+    
+def find_all_tags():
+    with tms_db.session() as session:
+        result = session.run("MATCH (t:tag) RETURN t")
+        data = result.data()
+        return data
       
 
-        
+def find_tags_by_email(email):
+    with tms_db.session() as session:
+        result = session.run("MATCH (p:person)-[r:follows]->(t:tag) where p.email = $email return t", email=email)
+        data = result.data()
+        return data
 
-
-            
+def find_tasks_by_email(email):
+    with tms_db.session() as session:
+        result = session.run("MATCH (p:person)-[r:works_on]->(t:task) where p.email = $email return t,elementid(t)", email=email)
+        data = result.data()
+        return data
+    
+def find_tags_by_taskid(elementid):
+    with tms_db.session() as session:
+        result = session.run("MATCH (t:task)-[r2:includes]->(tag:tag) where elementid(t) = $elementid return tag", elementid=elementid)
+        data = result.data()
+        return data
+    
+def find_skills_by_email(email):
+    with tms_db.session() as session:
+        result = session.run("MATCH (p:person)-[r:has]->(s:skill)-[r2:includes]->(t:tag) where p.email = $email return s,t", email=email)
+        data = result.data()
+        return data
+    
+def find_person_with_shared_skills_by_email(tag,email):
+    with tms_db.session() as session:
+        result = session.run("MATCH (p1:person)-[rps1:has]->(s1:skill)-[rst1:includes]->(t:tag)<-[rst2:includes]-(s2:skill)<-[rps2:has]-(p2:person) where p1.email = $email and t.name = $tag return p2", email=email, tag=tag)
+        data = result.data()
+        return data
+    
+def find_persons_by_taskid(elementid):
+    with tms_db.session() as session:
+        result = session.run("MATCH (t:task)<-[r:works_on]-(p:person) where elementid(t) = $elementid return p", elementid=elementid)
+        data = result.data()
+        return data
