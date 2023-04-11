@@ -220,12 +220,6 @@
                                     </div>
                                 </div>
                                 <div class="modal-footer">
-                                    {% if is_user%}
-                                    <form method="POST"
-                                        action="{{ url_for('remove_skill', tag=skill['t'].get('name')) }}">
-                                        <button class="btn btn-danger" type="submit">Remove</button>
-                                    </form>
-                                    {% endif %}
                                     <span class="badge rounded-pill bg-info">
                                         {{count_skills[skill['elementid(s)']]}}
                                         <span class="visually-hidden">endorsements</span>
@@ -235,6 +229,12 @@
                                     <form method="POST"
                                         action="{{ url_for('endorse_skill', elementid=skill['elementid(s)'])}}">
                                         <button class="btn btn-info" type="submit">Endorse</button>
+                                    </form>
+                                    {% endif %}
+                                    {% if is_user%}
+                                    <form method="POST"
+                                        action="{{ url_for('remove_skill', tag=skill['t'].get('name')) }}">
+                                        <button class="btn btn-danger" type="submit">Remove</button>
                                     </form>
                                     {% endif %}
                                     <button type="button" class="btn btn-secondary"
