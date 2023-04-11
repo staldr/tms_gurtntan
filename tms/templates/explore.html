@@ -1,10 +1,60 @@
 {% extends "base.html" %}
-{% block title %}Register{% endblock %}
+{% block title %}Explore{% endblock %}
 {% block content %}
-<div class="col-sm-3 text-left">
-   <h2>Explore</h2>
-</div>
 
+<div class="container text-left">
+    <h2>Explore</h2>
+    <div class="row align-items-start">
+        <div class="col">
+            <div class="card">
+                <h5 class="card-header">Recently Added Tags</h5>
+                <div class="card-body">
+                    {% for tag in recently_added_tags %}
+                    <a class="link-light" href="#">
+                        <span class="badge bg-secondary"> {{ tag['t']['name'] }}
+                        </span>
+                    </a>
+                    {% endfor %}
+
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <h5 class="card-header">
+                    Transactions
+                </h5>
+
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+
+                        {% for tx in transactions %}
+                        <li class="list-group-item" style="padding: 0px; padding-bottom: 2px; padding-top: 2px;">
+
+                        <b>{{tx.date}}</b> <span class="badge bg-secondary">{{tx.t.name}}</span><br/>
+                            {{tx.p_from.first_name}} {{tx.p_from.last_name}} &#x2192; {{tx.p_to.first_name}} {{tx.p_to.last_name}} <br/>
+                        </li>
+                            {% endfor %}
+                    </ul>              
+
+                </div>
+
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <h5 class="card-header">
+                    Popular Tags
+
+                </h5>
+                <div class="card-body">
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 {% endblock %}

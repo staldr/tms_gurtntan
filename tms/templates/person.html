@@ -7,36 +7,38 @@
 
 <div class="container text-left">
 
-    <h2> {{ person.first_name }} {{ person.last_name }}
-    </h2>
     <div class="row align-items-start">
-        <div class="col">
-            <div class="card">
-                <h5 class="card-header">My Contact</h5>
-                <div class="card-body">
-                    <!--<h5 class="card-title">Special title treatment</h5>-->
-                    <!--<p class="card-text">With supporting text below as a natural lead-in to additional content.</p>-->
-                    <table class="table table-sm">
-                        <tbody>
-                            <tr>
-                            <tr>
-                                <th>Phone</th>
-                                <td><a href="tel:{{ person.phone }}">{{ person.phone }}</a></td>
-                            </tr>
-                            <tr>
-                                <th>Email</th>
-                                <td><a href="mailto:{{ person.email }}">{{ person.email }}</a></td>
-                            </tr>
-                            <tr>
-                                <th>Job Title</th>
-                                <td>{{ person.job_title }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+        <div class="col"> <!--Contact-->
+
+            <table>
+                <th>
+                    <h4> {{ person.first_name }} {{ person.last_name }}, {{ person.job_title }}</h4>
+                </th>
+
+                <th>
+                    <a class="link-secondary" href="mailto:{{person.email}}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-envelope-fill" viewBox="0 0 16 16">
+                            <path
+                                d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414.05 3.555ZM0 4.697v7.104l5.803-3.558L0 4.697ZM6.761 8.83l-6.57 4.027A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586l-1.239-.757Zm3.436-.586L16 11.801V4.697l-5.803 3.546Z" />
+                        </svg>
+                    </a>
+                </th>
+                <th>
+                    <a class="link-secondary" href="tel:{{person.phone}}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-telephone-fill" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd"
+                                d="M1.885.511a1.745 1.745 0 0 1 2.61.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.678.678 0 0 0 .178.643l2.457 2.457a.678.678 0 0 0 .644.178l2.189-.547a1.745 1.745 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.634 18.634 0 0 1-7.01-4.42 18.634 18.634 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877L1.885.511z" />
+                        </svg>
+                </th>
+            </table>
         </div>
-        <div class="col">
+    </div>
+</div>
+<div class="container text-left">
+    <div class="row align-items-start">
+        <div class="col"> <!--Interest-->
             <div class="card">
                 <h5 class="card-header">
                     My Interests
@@ -119,7 +121,7 @@
 
             </div>
         </div>
-        <div class="col">
+        <div class="col"> <!--Skills-->
             <div class="card">
                 <h5 class="card-header">
                     My Skills
@@ -193,7 +195,7 @@
                             <div class="modal-content">
                                 <div class="modal-header">
                                     <h1 class="modal-title fs-5" id="exampleModalLabel">Skill: {{ skill['t'].get('name')
-                                        }} 
+                                        }}
 
                                     </h1>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"
@@ -227,7 +229,136 @@
                                     <span class="badge rounded-pill bg-info">
                                         {{count_skills[skill['elementid(s)']]}}
                                         <span class="visually-hidden">endorsements</span>
-        
+
+                                    </span>
+                                    {% if not is_user%}
+                                    <form method="POST"
+                                        action="{{ url_for('endorse_skill', elementid=skill['elementid(s)'])}}">
+                                        <button class="btn btn-info" type="submit">Endorse</button>
+                                    </form>
+                                    {% endif %}
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--End of modal-->
+                    {% endfor %}
+
+
+                </div>
+            </div>
+        </div>
+        <div class="col"> <!--Transactions-->
+            <div class="card">
+                <h5 class="card-header">
+                    My Transactions
+                    {% if is_user%}
+                    <!-- Button trigger modal -->
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#addskill">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-plus-square" viewBox="0 0 16 16">
+                            <path
+                                d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z" />
+                            <path
+                                d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                        </svg>
+                    </a>
+                    <!-- Modal -->
+                    <div class="modal fade" id="addskill" tabindex="-1" aria-labelledby="exampleModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Add Skill</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form method="POST" action="{{ url_for('add_skill') }}">
+                                        <div class="mb-3">
+                                            <label for="tag" class="form-label">Skill</label>
+                                            <input type="text" class="form-control" id="tag" name="tag">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="desc" class="form-label">Description</label>
+                                            <textarea class="form-control" id="desc" rows="3" name="desc"></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-light mb-3">Add</button>
+
+
+                                    </form>
+
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--End of modal-->
+                    </a>
+                    {% endif %}
+                    <!-- end is_user -->
+                </h5>
+                <div class="card-body">
+                    {% for tx in transactions %}
+
+                    <!-- Button trigger modal -->
+                    <a class="link-light" href="#" data-bs-toggle="modal"
+                        data-bs-target="#{{ skill['s'].get('created') }}">
+                        <span class="badge bg-secondary">{{ skill['t'].get('name') }}
+                            <span class="badge rounded-pill bg-info">
+                                {{count_skills[skill['elementid(s)']]}}
+                                <span class="visually-hidden">endorsements</span>
+
+                            </span>
+                    </a>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="{{ skill['s'].get('created') }}" tabindex="-1"
+                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Skill: {{ skill['t'].get('name')
+                                        }}
+
+                                    </h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    {{ skill['s'].get('description') }}
+                                    <br />
+                                    <br />
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <b>Other persons with this skill:</b>
+                                            <ul>
+                                                {% for v in shared_skills.get(skill['t'].get('name')) %}
+                                                <a href="/person?email={{v['p2']['email']}}">
+                                                    <li>{{v['p2']['first_name']}} {{v['p2']['last_name']}}</li>
+                                                </a>
+                                                {% endfor %}
+                                            </ul>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    {% if is_user%}
+                                    <form method="POST"
+                                        action="{{ url_for('remove_skill', tag=skill['t'].get('name')) }}">
+                                        <button class="btn btn-danger" type="submit">Remove</button>
+                                    </form>
+                                    {% endif %}
+                                    <span class="badge rounded-pill bg-info">
+                                        {{count_skills[skill['elementid(s)']]}}
+                                        <span class="visually-hidden">endorsements</span>
+
                                     </span>
                                     {% if not is_user%}
                                     <form method="POST"
@@ -254,60 +385,129 @@
     <div class="row align-items-start">
         <div class="col">
             <div class="card">
-                <h5 class="card-header">My Tasks</h5>
-                <div class="card-body">
-                    <p class="card-text">
-                    <div class="row align-items-start">
-
-                        {% for task in tasks %}
-                        <div class="col-3" style="padding-top: 15px; padding-right: 10px;">
-
-                            <div class="card" style="width: 17rem;">
-                                <div class="card-body">
-                                    <ul class="list-group list-group-flush">
-                                        <li class="list-group-item">
-                                            <h5 class="card-title">{{ task['t'].get('title') }}</h5>
-                                            <h6 class="card-subtitle mb-2 text-body-secondary">
-                                                {{ task['t'].get('start_date') }} -
-                                                {% if task['t'].get('end_date') %}
-                                                {{ task['t'].get('end_date') }}
-                                                {% else %} today
-                                                {%endif%}
-                                            </h6>
-                                        </li>
-                                        <li class="list-group-item">
-                                            <p class="card-text">{{ task['t'].get('description') }}</p>
-                                        </li>
-                                        <li class="list-group-item">
-                                            {% for t in tags_tasks[task['elementid(t)']] %}
-                                            <a class="link-light" href="#">
-                                                <span class="badge bg-secondary">{{t['tag'].get('name')}}</span></a>{%
-                                            endfor %}
-                                        </li>
-
-
-                                        <li class="list-group-item">
-                                            {% for p in shared_tasks[task['elementid(t)']] %}
-
-                                            <a class="nav-link"
-                                                href="/person?email={{p['p'].get('email')}}">{{p['p'].get('first_name')}}
-                                                {{p['p'].get('last_name')}}
-                                            </a>
-
-                                            {% endfor %}
-                                        </li>
-
-                                    </ul>
+                <h5 class="card-header">My Tasks
+                    {% if is_user%}
+                    <!-- Button trigger modal -->
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#addtask">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-plus-square" viewBox="0 0 16 16">
+                            <path
+                                d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z" />
+                            <path
+                                d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                        </svg>
+                    </a>
+                    <!-- Modal -->
+                    <div class="modal fade" id="addtask" tabindex="-1" aria-labelledby="exampleModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Add Task</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
                                 </div>
+                                <div class="modal-body">
+                                    <form method="POST" action="{{ url_for('add_skill') }}">
+                                        <div class="mb-3">
+                                            <label for="tag" class="form-label">Skill</label>
+                                            <input type="text" class="form-control" id="tag" name="tag">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="desc" class="form-label">Description</label>
+                                            <textarea class="form-control" id="desc" rows="3" name="desc"></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-light mb-3">Add</button>
 
+
+                                    </form>
+
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Close</button>
+                                </div>
                             </div>
                         </div>
-                        {% endfor %}
                     </div>
+                    <!--End of modal-->
+                    </a>
+                    {% endif %}
+                    <!-- end is_user -->
+                </h5>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+
+                        {% for task in tasks %}
+                        <li class="list-group-item" style="padding: 0px; padding-bottom: 2px; padding-top: 2px;">
+
+                            <b>{{ task['t'].get('start_date') }} -
+                                {% if task['t'].get('end_date') %}
+                                {{ task['t'].get('end_date') }}
+                                {% else %} today
+                                {%endif%}</b>
+
+                            {% for t in tags_tasks[task['elementid(t)']] %}
+                            <span class="badge bg-secondary">{{t['tag'].get('name')}}</span>
+                            {% endfor %} <br />
+
+                            <p style="font-size: smaller;"><i>{{ task['t'].get('title') }} - </i>{{
+                                task['t'].get('description') }}
+
+
+                                <!-- Button trigger modal -->
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#{{task.get('elementid(t)')}}">
+                                    <i>> Details</i>
+                                </a>
+                                <!-- Modal -->
+                            <div class="modal fade" id="{{task.get('elementid(t)')}}" tabindex="-1"
+                                aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="exampleModalLabel">Task Details: {{
+                                                task['t'].get('title') }}</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p><b>{{ task['t'].get('start_date') }} -
+                                                    {% if task['t'].get('end_date') %}
+                                                    {{ task['t'].get('end_date') }}
+                                                    {% else %} today
+                                                    {%endif%}</b></p>
+                                            <p>{{ task['t'].get('description') }}</p>
+                                            <p><b>Collaborators:</b> {% for p in shared_tasks[task['elementid(t)']] %}
+                                                <a class="nav-link"
+                                                    href="/person?email={{p['p'].get('email')}}">{{p['p'].get('first_name')}}
+                                                    {{p['p'].get('last_name')}}
+                                                </a>
+                                                {% endfor %}
+                                            </p>
+                                            <p> {% for t in tags_tasks[task['elementid(t)']] %}
+                                                <span class="badge bg-secondary">{{t['tag'].get('name')}}</span>
+                                                {% endfor %} <br />
+                                            </p>
+
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--End of modal-->
+                            </a>
+                            </p>
+                        </li>
+                    </ul>
                 </div>
 
             </div>
         </div>
+        {% endfor %}
     </div>
 </div>
+
 {% endblock %}

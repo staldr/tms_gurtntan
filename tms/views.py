@@ -59,8 +59,7 @@ def login():
             return redirect(url_for("user"))
         
         return render_template("login.html")
-
-    
+       
 @app.route("/person/")
 def person():
     email = request.args.get('email')
@@ -114,12 +113,14 @@ def logout():
 
 @app.route("/explore")
 def explore():
-    return render_template("explore.html")
+    recently_added_tags = get_recently_added_tags() 
+    transactions = get_transaction()
+    return render_template("explore.html", recently_added_tags=recently_added_tags, transactions=transactions)
 
 @app.route("/add_tag", methods=["POST","GET"])
 def add_tag():
     email = session['user']
-    tag = request.form["tag"]
+    tag = request.form["tag"].lower()
     rel_type = request.args.get('rel_type')
     query = '''merge (t:tag {{name: $tag}})
                                     ON CREATE SET t.created = datetime(), t.last_modified = datetime()
@@ -170,7 +171,7 @@ def remove_skill():
 @app.route("/add_skill", methods=["POST"])
 def add_skill():
     email = session['user']
-    tag = request.form["tag"]
+    tag = request.form["tag"].lower()
     desc = request.form["desc"]
     query = '''
         merge (t:tag {name: $tag})

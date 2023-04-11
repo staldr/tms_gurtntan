@@ -159,3 +159,17 @@ def get_count_endorsements_by_skill(elementid):
         result = tx.run(query, elementid=elementid)
         data = result.single()["count"]
         return data
+    
+def get_recently_added_tags():
+    query = "match (t:tag) return t order by t.created desc limit 5"
+    with tms_db.session() as tx:
+        result = tx.run(query)
+        data = result.data()
+        return data
+
+def get_transaction():
+    query = "match (p2:person)<-[r2:to]-(tx:transaction)<-[r:from]-(p1:person), (tx)-[r3:includes]->(t:tag) return tostring(tx.date) as date, p1 as p_from, p2 as p_to, t order by tx.date desc"
+    with tms_db.session() as tx:
+        result = tx.run(query)
+        data = [record for record in result]
+        return data
