@@ -1,4 +1,5 @@
 # Classes and functions
+from flask import abort, jsonify, make_response
 from neo4j import GraphDatabase
 import os
 from dotenv import load_dotenv
@@ -95,8 +96,14 @@ class User(Person):
 
 def find_person_by_email(email):
     with tms_db.session() as session:
-        result = session.run("MATCH (p:person) where p.email = $email return p", email=email)
-        record = result.single()["p"]
+        try:
+            result = session.run("MATCH (p:person) where p.email = $email return p", email=email)
+            record = result.single()["p"]
+        except TypeError as e:
+            data = {'message': 'This is an example response.'}
+            response = make_response(jsonify(data))
+            response.status = '200 OK'
+            return response
         return record
     
 def find_all_tags():
@@ -126,7 +133,7 @@ def find_tags_by_taskid(elementid):
     
 def find_skills_by_email(email):
     with tms_db.session() as session:
-        result = session.run("MATCH (p:person)-[r:has]->(s:skill)-[r2:includes]->(t:tag) where p.email = $email return s,t", email=email)
+        result = session.run("MATCH (p:person)-[r:has]->(s:skill)-[r2:includes]->(t:tag) where p.email = $email return s,t,elementid(s)", email=email)
         data = result.data()
         return data
     
@@ -140,4 +147,15 @@ def find_persons_by_taskid(elementid):
     with tms_db.session() as session:
         result = session.run("MATCH (t:task)<-[r:works_on]-(p:person) where elementid(t) = $elementid return p", elementid=elementid)
         data = result.data()
+        return data
+
+def get_count_endorsements_by_skill(elementid):
+    query = '''
+        match (s:skill)<-[r:endorses]-(p:person)
+        where elementid(s) = $elementid
+        return count(r) as count
+    '''
+    with tms_db.session() as tx:
+        result = tx.run(query, elementid=elementid)
+        data = result.single()["count"]
         return data

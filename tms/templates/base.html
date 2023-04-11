@@ -102,7 +102,7 @@
               {{ session['user'] }}
             </a>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="/user">My Profile</a></li>
+              <li><a class="dropdown-item" href="/person?email={{ session['user'] }}">My Profile</a></li>
               <li><a class="dropdown-item" href="/logout">Logout</a></li>
               {% endif %}
             </ul>
