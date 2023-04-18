@@ -1,8 +1,10 @@
 {% extends "base.html" %}
-{% block title %}Profile{% endblock %}
+{% block title %}{{ person.first_name }} {{ person.last_name }}, {{ person.job_title }}{% endblock %}
 {% block content %}
 {% for message in get_flashed_messages() %}
-{{ message }}
+<div class="alert alert-info" role="alert">
+    {{ message }}
+</div>
 {% endfor %}
 
 <div class="container text-left">
@@ -101,7 +103,6 @@
                         </div>
                     </div>
                     <!--End of modal-->
-                    </a>
                     {% endif %}
                     <!-- end is_user -->
                 </h5>
@@ -170,7 +171,6 @@
                         </div>
                     </div>
                     <!--End of modal-->
-                    </a>
                     {% endif %}
                     <!-- end is_user -->
                 </h5>
@@ -256,7 +256,7 @@
                     My Transactions
                     {% if is_user%}
                     <!-- Button trigger modal -->
-                    <a href="#" data-bs-toggle="modal" data-bs-target="#addskill">
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#addtransaction">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                             class="bi bi-plus-square" viewBox="0 0 16 16">
                             <path
@@ -266,27 +266,47 @@
                         </svg>
                     </a>
                     <!-- Modal -->
-                    <div class="modal fade" id="addskill" tabindex="-1" aria-labelledby="exampleModalLabel"
+                    <div class="modal fade" id="addtransaction" tabindex="-1" aria-labelledby="exampleModalLabel"
                         aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Add Skill</h1>
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Create Transaction</h1>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <form method="POST" action="{{ url_for('add_skill') }}">
+                                    <form method="POST" action="{{ url_for('add_transaction') }}">
                                         <div class="mb-3">
-                                            <label for="tag" class="form-label">Skill</label>
-                                            <input type="text" class="form-control" id="tag" name="tag">
+                                            <label for="from" class="form-label">From</label>
+                                            <select name ="from" id="from" class="form-select" aria-label="Default select example" required="required">
+                                                <option value="" selected>-- select --</option>
+                                                
+                                                {% for person in all_persons%}
+                                                <option value="{{person.email}}">{{person.last_name}}, {{person.first_name}} </option>
+                                                {% endfor %}
+                                              </select>
                                         </div>
                                         <div class="mb-3">
-                                            <label for="desc" class="form-label">Description</label>
-                                            <textarea class="form-control" id="desc" rows="3" name="desc"></textarea>
+                                            <label for="to" class="form-label">To</label>
+                                            <select name ="to" id="to" class="form-select" aria-label="Default select example" required="required">
+                                                <option value="" selected>-- select --</option>
+                                                
+                                                {% for person in all_persons%}
+                                                <option value="{{person.email}}">{{person.last_name}}, {{person.first_name}} </option>
+                                                {% endfor %}
+                                              </select>
                                         </div>
-                                        <button type="submit" class="btn btn-light mb-3">Add</button>
+                                        <div class="mb-3">
+                                            <label for="tag" class="form-label">Tag</label>
+                                            <input type="text" class="form-control" id="tag" name="tag" required="required">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="date" class="form-label">Date</label>
+                                            <input type="date" class="form-control" id="date" name="date" required="required">
+                                        </div>
 
+                                        <button type="submit" class="btn btn-light mb-3">Add</button>
 
                                     </form>
 
@@ -299,80 +319,17 @@
                         </div>
                     </div>
                     <!--End of modal-->
-                    </a>
                     {% endif %}
                     <!-- end is_user -->
                 </h5>
                 <div class="card-body">
                     {% for tx in transactions %}
+                    <b>{{tx.date}}</b> <span class="badge bg-secondary">{{tx.t.name}}</span><br/>
+                    <a href="/person?email={{tx.p_from.email}}">{{tx.p_from.first_name}} {{tx.p_from.last_name}}</a> &#x2192; <a href="/person?email={{tx.p_to.email}}">{{tx.p_to.first_name}} {{tx.p_to.last_name}} </a><br/>
+                        </li>
 
-                    <!-- Button trigger modal -->
-                    <a class="link-light" href="#" data-bs-toggle="modal"
-                        data-bs-target="#{{ skill['s'].get('created') }}">
-                        <span class="badge bg-secondary">{{ skill['t'].get('name') }}
-                            <span class="badge rounded-pill bg-info">
-                                {{count_skills[skill['elementid(s)']]}}
-                                <span class="visually-hidden">endorsements</span>
+                    
 
-                            </span>
-                    </a>
-
-                    <!-- Modal -->
-                    <div class="modal fade" id="{{ skill['s'].get('created') }}" tabindex="-1"
-                        aria-labelledby="exampleModalLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Skill: {{ skill['t'].get('name')
-                                        }}
-
-                                    </h1>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    {{ skill['s'].get('description') }}
-                                    <br />
-                                    <br />
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <b>Other persons with this skill:</b>
-                                            <ul>
-                                                {% for v in shared_skills.get(skill['t'].get('name')) %}
-                                                <a href="/person?email={{v['p2']['email']}}">
-                                                    <li>{{v['p2']['first_name']}} {{v['p2']['last_name']}}</li>
-                                                </a>
-                                                {% endfor %}
-                                            </ul>
-
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    {% if is_user%}
-                                    <form method="POST"
-                                        action="{{ url_for('remove_skill', tag=skill['t'].get('name')) }}">
-                                        <button class="btn btn-danger" type="submit">Remove</button>
-                                    </form>
-                                    {% endif %}
-                                    <span class="badge rounded-pill bg-info">
-                                        {{count_skills[skill['elementid(s)']]}}
-                                        <span class="visually-hidden">endorsements</span>
-
-                                    </span>
-                                    {% if not is_user%}
-                                    <form method="POST"
-                                        action="{{ url_for('endorse_skill', elementid=skill['elementid(s)'])}}">
-                                        <button class="btn btn-info" type="submit">Endorse</button>
-                                    </form>
-                                    {% endif %}
-                                    <button type="button" class="btn btn-secondary"
-                                        data-bs-dismiss="modal">Close</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!--End of modal-->
                     {% endfor %}
 
 
@@ -403,15 +360,36 @@
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Add Task</h1>
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Create Task</h1>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <form method="POST" action="{{ url_for('add_skill') }}">
+                                    <form method="POST" action="{{ url_for('add_task') }}">
                                         <div class="mb-3">
-                                            <label for="tag" class="form-label">Skill</label>
+                                            <label for="title" class="form-label">Title</label>
+                                            <input type="text" class="form-control" id="title" name="title">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="start_date" class="form-label">Start Date</label>
+                                            <input type="date" class="form-control" id="start_date" name="start_date" required="required">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="end_date" class="form-label">End Date</label>
+                                            <input type="date" class="form-control" id="end_date" name="end_date">
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="tag" class="form-label">Skill(s) (separate by semicolon ;)</label>
                                             <input type="text" class="form-control" id="tag" name="tag">
+                                        </div>
+                                        <div class="mb-3">
+                                            <select name ="collaborators" id="collaborators"class="form-select" multiple aria-label="multiple select example" required="required">
+                                                <option value="" selected>Open this select menu</option>
+                                                {% for person in all_persons%}
+                                                <option value="{{person.email}}">{{person.last_name}}, {{person.first_name}} </option>
+                                                {% endfor %}
+                                            </select>
                                         </div>
                                         <div class="mb-3">
                                             <label for="desc" class="form-label">Description</label>
@@ -431,7 +409,6 @@
                         </div>
                     </div>
                     <!--End of modal-->
-                    </a>
                     {% endif %}
                     <!-- end is_user -->
                 </h5>
@@ -477,7 +454,7 @@
                                                     {% else %} today
                                                     {%endif%}</b></p>
                                             <p>{{ task['t'].get('description') }}</p>
-                                            <p><b>Collaborators:</b> {% for p in shared_tasks[task['elementid(t)']] %}
+                                            <p><b>Members:</b> {% for p in shared_tasks[task['elementid(t)']] %}
                                                 <a class="nav-link"
                                                     href="/person?email={{p['p'].get('email')}}">{{p['p'].get('first_name')}}
                                                     {{p['p'].get('last_name')}}
@@ -498,15 +475,15 @@
                                 </div>
                             </div>
                             <!--End of modal-->
-                            </a>
                             </p>
                         </li>
+                        {% endfor %}
                     </ul>
                 </div>
 
             </div>
         </div>
-        {% endfor %}
+
     </div>
 </div>
 

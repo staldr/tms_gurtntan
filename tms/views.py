@@ -46,7 +46,7 @@ def login():
             if record:
                 if bcrypt.checkpw(password, record['u.password']):
                     session['user'] = email
-                    return redirect(url_for("user"))
+                    return redirect(url_for("person", email=session['user']))
                 else:
                     flash("Invalid password.")
                     return redirect(url_for("login"))
@@ -56,16 +56,18 @@ def login():
         
     elif request.method == "GET":
         if "user" in session:
-            return redirect(url_for("user"))
+            return redirect(url_for("person", email=session['user']))
         
         return render_template("login.html")
        
 @app.route("/person/")
 def person():
     email = request.args.get('email')
-    
+
     is_user=False
     if "user" in session:
+        if not email:
+            email = session['user']
         if session['user'] == email:
             is_user=True
 
@@ -74,6 +76,8 @@ def person():
     tags = find_tags_by_email(email)
     tasks = find_tasks_by_email(email)
     skills = find_skills_by_email(email)
+    transactions = find_transaction_by_email(email)
+    all_persons = get_persons()
     
     shared_skills = dict()
     count_skills = dict()
@@ -94,7 +98,8 @@ def person():
         tags_s = find_tags_by_taskid(elementid)
         tags_tasks[elementid] = tags_s
 
-    return render_template("person.html", person=person, tags=tags, tasks=tasks,skills=skills, shared_skills=shared_skills,shared_tasks=shared_tasks,tags_tasks=tags_tasks, is_user=is_user, count_skills=count_skills)
+    #return persons
+    return render_template("person.html", all_persons=all_persons,transactions=transactions, person=person, tags=tags, tasks=tasks,skills=skills, shared_skills=shared_skills,shared_tasks=shared_tasks,tags_tasks=tags_tasks, is_user=is_user, count_skills=count_skills)
 
 '''
 @app.route("/user/shared-skills/<tag>")  
@@ -113,9 +118,13 @@ def logout():
 
 @app.route("/explore")
 def explore():
+    followed_tags = get_popular_tags("follows")
+    worked_on_tags = get_popular_tags("works_on")
+    common_skills = get_popular_tags("has")
+    uncommon_skills = get_unpopular_tags("has")
     recently_added_tags = get_recently_added_tags() 
     transactions = get_transaction()
-    return render_template("explore.html", recently_added_tags=recently_added_tags, transactions=transactions)
+    return render_template("explore.html", uncommon_skills=uncommon_skills, recently_added_tags=recently_added_tags, transactions=transactions, followed_tags=followed_tags,worked_on_tags=worked_on_tags,common_skills=common_skills)
 
 @app.route("/add_tag", methods=["POST","GET"])
 def add_tag():
@@ -142,7 +151,7 @@ def remove_tag():
     email = session['user']
     checked_values = []
     rel_type = request.args.get('rel_type')
-    query = "match (t:tag)<-[r:{}]-(p:person) where t.name = $tag and p.email = $email delete r,t".format(rel_type)
+    query = "match (t:tag)<-[r:{}]-(p:person) where t.name = $tag and p.email = $email delete r".format(rel_type)
     for key in request.form:
         if key.startswith('checkbox_') and request.form.get(key) == 'on':
             checked_values.append(key.replace('checkbox_', ''))
@@ -191,6 +200,76 @@ def add_skill():
                 return abort(500) # TODO: Exception Handling ausbauen
         return redirect(request.referrer)
     
+@app.route("/add_task", methods=["POST"])
+def add_task():
+    email = session['user']
+    desc = request.form["desc"]
+    title = request.form["title"]
+    start_date = request.form["start_date"]
+    end_date = request.form["end_date"]
+    tags_string = request.form["tag"].lower()
+    tags = set(tags_string.split(";")) # removing duplicates
+    collaborators = request.form.getlist("collaborators")
+
+
+    if request.method == "POST":
+
+        query = '''
+            create (t:task {created: datetime(), last_modified: datetime(), description: $desc, title: $title, start_date: $start_date, end_date: $end_date}) with t
+            match (p:person) where p.email = $email
+            create (p)-[:works_on]->(t)
+            return elementid(t) as elementid
+        '''
+        query2 = '''
+            match (t:task), (p:person) where elementid(t) = $elementid and p.email = $collaborator
+            create (p)-[:works_on]->(t) 
+        '''
+        query3 = '''
+            merge (tag:tag {name: $tag})
+            ON CREATE SET tag.created = datetime(), tag.last_modified = datetime()
+            with tag
+            match (t:task) where elementid(t) = $elementid
+            create (t)-[:includes]->(tag)
+        '''
+        with tms_db.session() as tx:
+            result = tx.run(query, desc=desc, title=title, start_date=start_date, end_date=end_date, email=email)
+            elementid = result.single()["elementid"]
+            for collaborator in  collaborators:
+                tx.run(query2, collaborator=collaborator, elementid=elementid)
+            for tag in tags:
+                tx.run(query3, tag=tag, elementid=elementid)
+
+        return redirect(request.referrer)
+    
+@app.route("/add_transaction", methods=["POST"])
+def add_transaction():
+    email = session['user'] 
+    p_from = request.form["from"]
+    p_to = request.form["to"]
+    tag = request.form["tag"].lower()
+    date = request.form["date"]
+    if str(email) != str(p_from) and str(email) != str(p_to):
+        flash("You have to be part of the transaction.")
+        return redirect(url_for("person", email=session['user']))
+    elif p_from == p_to:
+        flash("Two different persons have to be part of the transaction.")
+        return redirect(url_for("person", email=session['user']))
+    query = '''
+        merge (t:tag {name: $tag})
+        ON CREATE SET t.created = datetime(), t.last_modified = datetime()
+        with t
+        match (p_to:person) where p_to.email = $p_to
+        match (p_from:person) where p_from.email = $p_from
+        create (tx:transaction {date: $date, created: datetime(), last_modified: datetime()})
+        create (p_to)<-[:to]-(tx)<-[:from]-(p_from)
+        create (tx)-[:includes]->(t)
+        return tx
+    '''
+    if request.method == "POST":
+        with tms_db.session() as tx:
+            tx.run(query, p_from=p_from, p_to=p_to, tag=tag, date=date)
+        return redirect(request.referrer)
+    
 @app.route("/endorse_skill", methods=["POST"])
 def endorse_skill():
     if "user" not in session:
@@ -212,3 +291,12 @@ def endorse_skill():
             except:
                 return abort(500) # TODO: Exception Handling ausbauen
         return redirect(request.referrer)
+
+@app.route('/search')
+def search():
+    input = request.args.get('q')
+    results = find_persons_by_input(input)
+    return results
+
+
+

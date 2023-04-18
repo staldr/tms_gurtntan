@@ -148,6 +148,15 @@ def find_persons_by_taskid(elementid):
         result = session.run("MATCH (t:task)<-[r:works_on]-(p:person) where elementid(t) = $elementid return p", elementid=elementid)
         data = result.data()
         return data
+    
+def find_persons_by_input(input):
+    with tms_db.session() as session:
+        result = session.run('''MATCH (p:person)
+                                WITH p, apoc.text.join([p.first_name, p.last_name, p.job_title], " ") AS text
+                                WHERE tolower(text) contains tolower($input)
+                                RETURN p''', input=input)
+        data = result.data()
+        return data
 
 def get_count_endorsements_by_skill(elementid):
     query = '''
@@ -161,7 +170,7 @@ def get_count_endorsements_by_skill(elementid):
         return data
     
 def get_recently_added_tags():
-    query = "match (t:tag) return t order by t.created desc limit 5"
+    query = "match (t:tag) return t order by t.created desc limit 10"
     with tms_db.session() as tx:
         result = tx.run(query)
         data = result.data()
@@ -172,4 +181,47 @@ def get_transaction():
     with tms_db.session() as tx:
         result = tx.run(query)
         data = [record for record in result]
+        return data
+
+def get_persons():
+    with tms_db.session() as session:
+        result = session.run("MATCH (p:person) return p.first_name as first_name, p.last_name as last_name, elementid(p) as elementid, p.email as email")
+        data = result.data()
+        return data
+    
+def find_transaction_by_email(email):
+    query = "match (p2:person)<-[r2:to]-(tx:transaction)<-[r:from]-(p1:person), (tx)-[r3:includes]->(t:tag) where p2.email = $email1 or p1.email = $email2 return tx.date as date, p1 as p_from, p2 as p_to, t order by tx.date desc"
+    with tms_db.session() as tx:
+        result = tx.run(query, email1=email, email2=email)
+        data = [record for record in result]
+        return data
+    
+def get_popular_tags(rel_type):
+    if rel_type == "follows":
+            query = "MATCH (t:tag)-[r:" + rel_type + "]-(m) RETURN t.name as name, count(r) as count ORDER BY count(r) DESC LIMIT 10"
+    else:
+        query = "MATCH (t:tag)-[r:includes]-(m) where (m)-[:" + rel_type + "]-() RETURN t.name as name, count(r) as count ORDER BY count(r) DESC LIMIT 10"
+
+    with tms_db.session() as tx:
+        result = tx.run(query)
+        data = result.data()
+        return data
+
+def get_unpopular_tags(rel_type):
+    if rel_type == "follows":
+            query = "MATCH (t:tag)-[r:" + rel_type + "]-(m) RETURN t.name as name, count(r) as count ORDER BY count(r) ASC LIMIT 10"
+    else:
+        query = "MATCH (t:tag)-[r:includes]-(m) where (m)-[:" + rel_type + "]-() RETURN t.name as name, count(r) as count ORDER BY count(r) ASC LIMIT 10"
+
+    with tms_db.session() as tx:
+        result = tx.run(query)
+        data = result.data()
+        return data
+
+def merge():
+    query = "match (t:tag) return t.name"
+
+    with tms_db.session() as session:
+        result = session.run(query)
+        data = result.data()
         return data

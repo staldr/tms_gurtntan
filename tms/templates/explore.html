@@ -22,7 +22,79 @@
         <div class="col">
             <div class="card">
                 <h5 class="card-header">
-                    Transactions
+                    10 Most Followed Tags
+
+                </h5>
+                <div class="card-body">
+                    {% for tag in followed_tags %}
+                    
+                    <a class="link-light" href="#">
+                        <span class="badge bg-secondary"> {{ tag.name }}
+                        </span>
+                    </a>
+                    {% endfor %}
+
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <h5 class="card-header">
+                    10 Most Worked On Tags
+
+                </h5>
+                <div class="card-body">
+                    {% for tag in worked_on_tags %}
+                    
+                    <a class="link-light" href="#">
+                        <span class="badge bg-secondary"> {{ tag.name }}
+                        </span>
+                    </a>
+                    {% endfor %}
+
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <h5 class="card-header">
+                    10 Most Common Skills
+
+                </h5>
+                <div class="card-body">
+                    {% for tag in common_skills %}
+                    
+                    <a class="link-light" href="#">
+                        <span class="badge bg-secondary"> {{ tag.name }}
+                        </span>
+                    </a>
+                    {% endfor %}
+
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <h5 class="card-header">
+                    10 Most Unommon Skills
+
+                </h5>
+                <div class="card-body">
+                    {% for tag in uncommon_skills %}
+                    
+                    <a class="link-light" href="#">
+                        <span class="badge bg-secondary"> {{ tag.name }}
+                        </span>
+                    </a>
+                    {% endfor %}
+
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <h5 class="card-header">
+                    Last Transactions
                 </h5>
 
                 <div class="card-body">
@@ -32,25 +104,13 @@
                         <li class="list-group-item" style="padding: 0px; padding-bottom: 2px; padding-top: 2px;">
 
                         <b>{{tx.date}}</b> <span class="badge bg-secondary">{{tx.t.name}}</span><br/>
-                            {{tx.p_from.first_name}} {{tx.p_from.last_name}} &#x2192; {{tx.p_to.first_name}} {{tx.p_to.last_name}} <br/>
+                        <a href="/person?email={{tx.p_from.email}}">{{tx.p_from.first_name}} {{tx.p_from.last_name}}</a> &#x2192; <a href="/person?email={{tx.p_to.email}}">{{tx.p_to.first_name}} {{tx.p_to.last_name}} </a><br/>
                         </li>
                             {% endfor %}
                     </ul>              
 
                 </div>
 
-            </div>
-        </div>
-        <div class="col">
-            <div class="card">
-                <h5 class="card-header">
-                    Popular Tags
-
-                </h5>
-                <div class="card-body">
-
-
-                </div>
             </div>
         </div>
     </div>
