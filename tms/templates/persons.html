@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Persons{% endblock %}
+{% block content %}
+
+<div class="container text-left">
+    <h2>Persons</h2>
+    <div class="row align-items-start">
+
+                    <ul class="list-group">
+                        {% for person in persons%}
+                        <li class="list-group-item">
+                            <a href="/persons/{{person.email}}">{{person.last_name}}, {{person.first_name}}</a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+    </div>
+
+</div>
+
+{% endblock %}

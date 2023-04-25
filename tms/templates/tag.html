@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block title %}{{ tag.name }}{% endblock %}
+{% block content %}
+
+<div class="container text-left">
+    <h2>{{ tag.name }}</h2>
+    <div class="row align-items-start">
+        <div class="col">
+            <div class="card">
+                <h5 class="card-header">Who is interested in {{ tag.name }}?</h5>
+                <ul class="list-group">
+                    {% for person in persons_following%}
+                    <li class="list-group-item">
+                        <a href="/persons/{{person.p.email}}">{{person.p.last_name}}, {{person.p.first_name}}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <h5 class="card-header">Who is skilled in {{ tag.name }}?</h5>
+                <ul class="list-group">
+                    {% for person in persons_skilled%}
+                    <li class="list-group-item">
+                        <a href="/persons/{{person.p.email}}">{{person.p.last_name}}, {{person.p.first_name}} </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <!--
+        <div class="col">
+            <div class="card">
+                <h5 class="card-header">Who is working on {{ tag.name }}?</h5>
+                <ul class="list-group">
+                    {% for person in persons_working%}
+                    <li class="list-group-item">
+                        <a href="/person?email={{person.p.email}}">{{person.p.last_name}}, {{person.p.first_name}} </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    -->
+    <div class="col">
+        <div class="card">
+            <h5 class="card-header">Who helps with {{ tag.name }}?</h5>
+            <ul class="list-group">
+                {% for tx in transactions%}
+                <li class="list-group-item">
+                    <a href="/persons/{{tx.p_from.email}}">{{tx.p_from.last_name}}, {{tx.p_from.first_name}} </a>
+                    helped {{ tx.anz }} time{% if tx.anz > 1%}s{% endif %}
+                </li>
+                
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    </div>
+
+
+
+</div>
+
+<div class="container text-left" style="padding-top: 15px;">
+    <h2> </h2>
+    <div class="row align-items-start">
+        <div class="col">
+            <div class="card">
+                <h5 class="card-header">What task include {{ tag.name }}?
+                </h5>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for task in tasks%}
+                        <li class="list-group-item" style="padding: 0px; padding-bottom: 2px; padding-top: 2px;">
+                            <b>{{ task.t.start_date }} -
+                                {% if task.t.end_date %}
+                                {{ task.t.end_date }}
+                                {% else %} today
+                                {%endif%}</b>
+
+                            {% for t in tags_tasks[task['elementid(t)']] %}
+                            <a class="link-light" href="/tags/{{t['tag'].get('name')}}">
+                                <span class="badge bg-secondary">{{t['tag'].get('name')}}</span>
+                            </a>
+                            {% endfor %} <br />
+                            <p style="font-size: smaller;"><i>{{ task['t'].get('title') }} - </i>{{
+                                task['t'].get('description') }}
+                                <!-- Button trigger modal -->
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#{{task.get('elementid(t)')}}">
+                                    <i>> Details</i>
+                                </a>
+                                <!-- Modal -->
+                            <div class="modal fade" id="{{task.get('elementid(t)')}}" tabindex="-1"
+                                aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="exampleModalLabel">Task Details: {{
+                                                task['t'].get('title') }}</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p><b>{{ task['t'].get('start_date') }} -
+                                                    {% if task['t'].get('end_date') %}
+                                                    {{ task['t'].get('end_date') }}
+                                                    {% else %} today
+                                                    {%endif%}</b></p>
+                                            <p>{{ task['t'].get('description') }}</p>
+                                            <p> {% for t in tags_tasks[task['elementid(t)']] %}
+                                                <a class="link-light" href="/tags/{{t['tag'].get('name')}}">
+
+                                                <span class="badge bg-secondary">{{t['tag'].get('name')}}</span>
+                                                </a>
+                                                {% endfor %} 
+                                            <br />
+                                            </p>
+                                            <p><b>Persons:</b> {% for p in shared_tasks[task['elementid(t)']] %}
+                                                <a class="nav-link"
+                                                    href="/persons/{{p['p'].get('email')}}">{{p['p'].get('first_name')}}
+                                                    {{p['p'].get('last_name')}}
+                                                </a>
+                                                {% endfor %}
+                                            </p>
+
+
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--End of modal-->
+                            </p>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+{% endblock %}

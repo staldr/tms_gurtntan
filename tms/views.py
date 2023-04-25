@@ -8,7 +8,12 @@ salt = bcrypt.gensalt()
 
 @app.route("/")
 def index():
-    return render_template("index.html", message="Hello World")
+    return redirect(url_for("explore"))
+
+@app.route("/admin")
+def admin():
+    return merge()
+
 
 @app.route("/register", methods=["POST","GET"])
 def register():
@@ -59,11 +64,15 @@ def login():
             return redirect(url_for("person", email=session['user']))
         
         return render_template("login.html")
-       
-@app.route("/person/")
-def person():
-    email = request.args.get('email')
 
+@app.route("/persons/")
+def persons():
+    persons = get_persons()
+    return render_template("persons.html", persons=persons)
+
+@app.route("/persons/<email>")
+def person(email):
+    email = email
     is_user=False
     if "user" in session:
         if not email:
@@ -121,10 +130,11 @@ def explore():
     followed_tags = get_popular_tags("follows")
     worked_on_tags = get_popular_tags("works_on")
     common_skills = get_popular_tags("has")
-    uncommon_skills = get_unpopular_tags("has")
+    #uncommon_skills = get_unpopular_tags("has")
     recently_added_tags = get_recently_added_tags() 
     transactions = get_transaction()
-    return render_template("explore.html", uncommon_skills=uncommon_skills, recently_added_tags=recently_added_tags, transactions=transactions, followed_tags=followed_tags,worked_on_tags=worked_on_tags,common_skills=common_skills)
+    transaction_tag_count = get_transaction_tag_count()
+    return render_template("explore.html", transaction_tag_count=transaction_tag_count, recently_added_tags=recently_added_tags, transactions=transactions, followed_tags=followed_tags,worked_on_tags=worked_on_tags,common_skills=common_skills)
 
 @app.route("/add_tag", methods=["POST","GET"])
 def add_tag():
@@ -183,13 +193,13 @@ def add_skill():
     tag = request.form["tag"].lower()
     desc = request.form["desc"]
     query = '''
-        merge (t:tag {name: $tag})
+        MERGE (t:tag {name: $tag})
         ON CREATE SET t.created = datetime(), t.last_modified = datetime()
-        merge (s:skill {description: $desc})
+        MERGE (s:skill {description: $desc})
         ON CREATE SET s.created = datetime(), s.last_modified = datetime()
         with s,t
-        match (p:person) where p.email = $email
-        merge (p)-[r:has]->(s)-[r2:includes]->(t)
+        MATCH (p:person) WHERE p.email = $email
+        MERGE (p)-[r:has]->(s)-[r2:includes]->(t)
         ON CREATE SET r.created = datetime()
     '''
     if request.method == "POST":
@@ -215,21 +225,21 @@ def add_task():
     if request.method == "POST":
 
         query = '''
-            create (t:task {created: datetime(), last_modified: datetime(), description: $desc, title: $title, start_date: $start_date, end_date: $end_date}) with t
-            match (p:person) where p.email = $email
-            create (p)-[:works_on]->(t)
-            return elementid(t) as elementid
+            CREATE (t:task {created: datetime(), last_modified: datetime(), description: $desc, title: $title, start_date: $start_date, end_date: $end_date}) WITH t
+            MATCH (p:person) WHERE p.email = $email
+            CREATE (p)-[:works_on]->(t)
+            RETURN elementid(t) as elementid
         '''
         query2 = '''
-            match (t:task), (p:person) where elementid(t) = $elementid and p.email = $collaborator
-            create (p)-[:works_on]->(t) 
+            MATCH (t:task), (p:person) WHERE elementid(t) = $elementid and p.email = $collaborator
+            CREATE (p)-[:works_on]->(t) 
         '''
         query3 = '''
             merge (tag:tag {name: $tag})
             ON CREATE SET tag.created = datetime(), tag.last_modified = datetime()
             with tag
-            match (t:task) where elementid(t) = $elementid
-            create (t)-[:includes]->(tag)
+            MATCH (t:task) WHERE elementid(t) = $elementid
+            CREATE (t)-[:includes]->(tag)
         '''
         with tms_db.session() as tx:
             result = tx.run(query, desc=desc, title=title, start_date=start_date, end_date=end_date, email=email)
@@ -298,5 +308,38 @@ def search():
     results = find_persons_by_input(input)
     return results
 
+@app.route("/tags")
+def tags():
+    tags = get_tags()
+    return render_template("tags.html", tags=tags)
 
+@app.route('/tags/<name>')
+def tag(name):
+    tag = find_tag_by_name(name)
+    persons_following = find_person_by_tag(name,"follows")
+    persons_skilled = find_person_by_tag(name,"has")
+    # persons_working = find_person_by_tag(name,"works_on")
+    tasks = find_task_by_tag(name)
+    transactions = find_transaction_by_tag(name)
+ 
+    
+    tags_tasks = dict()       
+    shared_tasks = dict()
+    for task in tasks:
+        elementid = task['elementid(t)']
+        persons = find_persons_by_taskid(elementid)
+        shared_tasks[elementid] = persons
+        tags_s = find_tags_by_taskid(elementid)
+        tags_tasks[elementid] = tags_s
+    
+
+
+    return render_template("tag.html", transactions=transactions, tag=tag, persons_following=persons_following,persons_skilled=persons_skilled,tasks=tasks,tags_tasks=tags_tasks,shared_tasks=shared_tasks)
+
+@app.route('/tasks/<task_id>')
+def tasks(task_id):
+    task = find_task_by_taskid(task_id)
+    persons = find_persons_by_taskid(task_id)
+    tags = find_tags_by_taskid(task_id)
+    return render_template("tasks.html", persons=persons, tags=tags, task=task)
 

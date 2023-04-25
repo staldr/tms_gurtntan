@@ -106,9 +106,39 @@ def find_person_by_email(email):
             return response
         return record
     
-def find_all_tags():
+def find_person_by_tag(name,rel_type):
+    query_start = "MATCH (t:tag)-[r1:"
+    query_hyperedge = "includes]-(n)-[r2:"
+    query_end = "]-(p:person) WHERE t.name = $name RETURN DISTINCT p ORDER BY p.last_name"
+    if rel_type == "follows":
+        query = query_start + rel_type + query_end
+    elif rel_type == "works_on":
+        query = query_start + query_hyperedge + rel_type + query_end
+    elif rel_type == "has":
+        query = query_start + query_hyperedge + rel_type + query_end
+
     with tms_db.session() as session:
-        result = session.run("MATCH (t:tag) RETURN t")
+        result = session.run(query, name=name,rel_type=rel_type)
+        data = result.data()
+        return data
+    
+def get_tags():
+    with tms_db.session() as session:
+        result = session.run("MATCH (t:tag) RETURN t order by t.name")
+        data = result.data()
+        return data
+    
+def find_tag_by_name(name):
+    query = "MATCH (t:tag) where t.name = $name RETURN t"
+    with tms_db.session() as session:
+        result = session.run(query,name=name)
+        data = result.single()["t"]
+        return data
+    
+def find_task_by_tag(tag):
+    query = "MATCH (t:task)-[r:includes]-(tag:tag) where tag.name = $tag RETURN t, elementid(t)"
+    with tms_db.session() as session:
+        result = session.run(query,tag=tag)
         data = result.data()
         return data
       
@@ -129,6 +159,12 @@ def find_tags_by_taskid(elementid):
     with tms_db.session() as session:
         result = session.run("MATCH (t:task)-[r2:includes]->(tag:tag) where elementid(t) = $elementid return tag", elementid=elementid)
         data = result.data()
+        return data
+    
+def find_task_by_taskid(elementid):
+    with tms_db.session() as session:
+        result = session.run("MATCH (t:task) where elementid(t) = $elementid return t", elementid=elementid)
+        data = result.single()["t"]
         return data
     
 def find_skills_by_email(email):
@@ -170,7 +206,7 @@ def get_count_endorsements_by_skill(elementid):
         return data
     
 def get_recently_added_tags():
-    query = "match (t:tag) return t order by t.created desc limit 10"
+    query = "match (t:tag) where date(t.created) > date() - duration({days: 7})return t order by t.created desc"
     with tms_db.session() as tx:
         result = tx.run(query)
         data = result.data()
@@ -182,10 +218,17 @@ def get_transaction():
         result = tx.run(query)
         data = [record for record in result]
         return data
+    
+def get_transaction_tag_count():
+    query = "match (tx)-[r3:includes]->(t:tag) return count(t) as anz, t order by count(t) desc"  
+    with tms_db.session() as tx:
+        result = tx.run(query)
+        data = [record for record in result]
+        return data
 
 def get_persons():
     with tms_db.session() as session:
-        result = session.run("MATCH (p:person) return p.first_name as first_name, p.last_name as last_name, elementid(p) as elementid, p.email as email")
+        result = session.run("MATCH (p:person) return p.first_name as first_name, p.last_name as last_name, elementid(p) as elementid, p.email as email order by p.last_name")
         data = result.data()
         return data
     
@@ -196,32 +239,60 @@ def find_transaction_by_email(email):
         data = [record for record in result]
         return data
     
+def find_transaction_by_tag(tag):
+    query = "match (t:tag)<-[r3:includes]-(tx:transaction)<-[r:from]-(p1:person) where t.name = $tag return count(p1) as anz, tx.date as date, p1 as p_from, t order by count(p1) desc, p1.last_name asc"
+    #query = "match (p2:person)<-[r2:to]-(tx:transaction)<-[r:from]-(p1:person), (tx)-[r3:includes]->(t:tag) where t.name = $tag return count(distinct p1) as count, tx.date as date, p1 as p_from, p2 as p_to, t order by p1.last_name asc"
+    with tms_db.session() as tx:
+        result = tx.run(query, tag=tag)
+        data = [record for record in result]
+        return data    
+    
 def get_popular_tags(rel_type):
     if rel_type == "follows":
-            query = "MATCH (t:tag)-[r:" + rel_type + "]-(m) RETURN t.name as name, count(r) as count ORDER BY count(r) DESC LIMIT 10"
+            query = "MATCH (t:tag)-[r:" + rel_type + "]-(m) RETURN t.name as name, count(r) as anz ORDER BY count(r) DESC,t.name asc"
     else:
-        query = "MATCH (t:tag)-[r:includes]-(m) where (m)-[:" + rel_type + "]-() RETURN t.name as name, count(r) as count ORDER BY count(r) DESC LIMIT 10"
+        query = "MATCH (t:tag)-[r:includes]-(m) where (m)-[:" + rel_type + "]-() RETURN t.name as name, count(r) as anz ORDER BY count(r) DESC,t.name asc"
 
     with tms_db.session() as tx:
         result = tx.run(query)
         data = result.data()
         return data
-
+'''
 def get_unpopular_tags(rel_type):
     if rel_type == "follows":
-            query = "MATCH (t:tag)-[r:" + rel_type + "]-(m) RETURN t.name as name, count(r) as count ORDER BY count(r) ASC LIMIT 10"
+            query = "MATCH (t:tag)-[r:" + rel_type + "]-(m) RETURN t.name as name, count(r) as count ORDER BY count(r) ASC"
     else:
-        query = "MATCH (t:tag)-[r:includes]-(m) where (m)-[:" + rel_type + "]-() RETURN t.name as name, count(r) as count ORDER BY count(r) ASC LIMIT 10"
+        query = "MATCH (t:tag)-[r:includes]-(m) where (m)-[:" + rel_type + "]-() RETURN t.name as name, count(r) as count ORDER BY count(r) ASC"
 
     with tms_db.session() as tx:
         result = tx.run(query)
         data = result.data()
         return data
+'''
 
+# test similar tags
 def merge():
-    query = "match (t:tag) return t.name"
+    tags = get_tags()
+    import spacy
 
-    with tms_db.session() as session:
-        result = session.run(query)
-        data = result.data()
-        return data
+    nlp = spacy.load("en_core_web_sm")
+
+    terms = list()
+    for tag in tags:
+        terms.append(tag['t']['name'])
+
+    terms_freq = dict()
+    for term in terms:
+        similarity_scores = []
+        for other_term in terms:
+            if term != other_term:
+                print(term," <--> ", other_term)
+                similarity = nlp(term).similarity(nlp(other_term))
+                if similarity > 0.90:
+                    similarity_scores.append((other_term, similarity))
+                if similarity_scores:
+                    similarity_scores.sort(key=lambda x: x[1], reverse=True)
+                    terms_freq[term] = similarity_scores
+
+    return str(terms_freq)
+

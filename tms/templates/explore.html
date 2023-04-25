@@ -10,7 +10,7 @@
                 <h5 class="card-header">Recently Added Tags</h5>
                 <div class="card-body">
                     {% for tag in recently_added_tags %}
-                    <a class="link-light" href="#">
+                    <a class="link-light" href="/tags/{{ tag['t']['name'] }}">
                         <span class="badge bg-secondary"> {{ tag['t']['name'] }}
                         </span>
                     </a>
@@ -22,14 +22,14 @@
         <div class="col">
             <div class="card">
                 <h5 class="card-header">
-                    10 Most Followed Tags
+                    Most Followed
 
                 </h5>
                 <div class="card-body">
                     {% for tag in followed_tags %}
-                    
-                    <a class="link-light" href="#">
-                        <span class="badge bg-secondary"> {{ tag.name }}
+
+                    <a class="link-light" href="/tags/{{ tag.name }}">
+                        <span class="badge bg-secondary"> {{ tag.name }} ({{ tag.anz }})
                         </span>
                     </a>
                     {% endfor %}
@@ -40,14 +40,14 @@
         <div class="col">
             <div class="card">
                 <h5 class="card-header">
-                    10 Most Worked On Tags
+                    Most Worked On
 
                 </h5>
                 <div class="card-body">
                     {% for tag in worked_on_tags %}
-                    
-                    <a class="link-light" href="#">
-                        <span class="badge bg-secondary"> {{ tag.name }}
+
+                    <a class="link-light" href="/tags/{{ tag.name }}">
+                        <span class="badge bg-secondary"> {{ tag.name }} ({{ tag.anz }})
                         </span>
                     </a>
                     {% endfor %}
@@ -58,14 +58,14 @@
         <div class="col">
             <div class="card">
                 <h5 class="card-header">
-                    10 Most Common Skills
+                    Common Skills
 
                 </h5>
                 <div class="card-body">
                     {% for tag in common_skills %}
-                    
-                    <a class="link-light" href="#">
-                        <span class="badge bg-secondary"> {{ tag.name }}
+
+                    <a class="link-light" href="/tags/{{ tag.name }}">
+                        <span class="badge bg-secondary"> {{ tag.name }} ({{ tag.anz }})
                         </span>
                     </a>
                     {% endfor %}
@@ -73,17 +73,23 @@
                 </div>
             </div>
         </div>
+
+
+    </div>
+</div>
+<div class="container text-left" style="padding-top: 15px;">
+    <div class="row align-items-start">
         <div class="col">
             <div class="card">
                 <h5 class="card-header">
-                    10 Most Unommon Skills
+                    Transactions
 
                 </h5>
                 <div class="card-body">
-                    {% for tag in uncommon_skills %}
-                    
-                    <a class="link-light" href="#">
-                        <span class="badge bg-secondary"> {{ tag.name }}
+                    {% for tx in transaction_tag_count %}
+
+                    <a class="link-light" href="/tags/{{ tx.t.name }}">
+                        <span class="badge bg-secondary"> {{ tx.t.name }} ({{ tx.anz }})
                         </span>
                     </a>
                     {% endfor %}
@@ -103,11 +109,14 @@
                         {% for tx in transactions %}
                         <li class="list-group-item" style="padding: 0px; padding-bottom: 2px; padding-top: 2px;">
 
-                        <b>{{tx.date}}</b> <span class="badge bg-secondary">{{tx.t.name}}</span><br/>
-                        <a href="/person?email={{tx.p_from.email}}">{{tx.p_from.first_name}} {{tx.p_from.last_name}}</a> &#x2192; <a href="/person?email={{tx.p_to.email}}">{{tx.p_to.first_name}} {{tx.p_to.last_name}} </a><br/>
+                            <b>{{tx.date}}</b><a class="link-light" href="/tags/{{tx.t.name}}"> <span class="badge bg-secondary">{{tx.t.name}}</span></a><br />
+                            <a href="/persons/{{tx.p_from.email}}">{{tx.p_from.first_name}}
+                                {{tx.p_from.last_name}}</a> &#x2192; <a
+                                href="/persons/{{tx.p_to.email}}">{{tx.p_to.first_name}} {{tx.p_to.last_name}}
+                            </a><br />
                         </li>
-                            {% endfor %}
-                    </ul>              
+                        {% endfor %}
+                    </ul>
 
                 </div>
 

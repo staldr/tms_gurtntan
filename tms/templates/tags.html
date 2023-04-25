@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Persons{% endblock %}
+{% block content %}
+
+<div class="container text-left">
+    <h2>Tags</h2>
+    <div class="row align-items-start">
+
+                        {% for tag in tags%}
+                        <a class="link-light" href="/tags/{{tag.t.name}}">
+                            <span class="badge bg-secondary"> {{tag.t.name}}
+                            </span>
+                        </a>
+                        {% endfor %}
+    </div>
+
+</div>
+
+{% endblock %}

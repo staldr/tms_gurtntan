@@ -111,7 +111,7 @@
                     <p class="card-text">
 
                         {% for tag in tags %}
-                        <a class="link-light" href="#">
+                        <a class="link-light" href="/tags/{{ tag['t'].get('name') }}">
                             <span class="badge bg-secondary">{{ tag['t'].get('name') }}</span>
                         </a>
                         {% endfor %}
@@ -194,8 +194,19 @@
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Skill: {{ skill['t'].get('name')
-                                        }}
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">
+                                        <a class="link-light" href="/tags/{{ skill['t'].get('name') }}">
+                                            <span class="badge bg-secondary">{{ skill['t'].get('name') }}
+
+                                        </a>
+                                        <span class="badge rounded-pill bg-info">
+                                            {{count_skills[skill['elementid(s)']]}}
+                                            <span class="visually-hidden">endorsements</span>
+
+                                        </span>
+
+
+
 
                                     </h1>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"
@@ -210,7 +221,7 @@
                                             <b>Other persons with this skill:</b>
                                             <ul>
                                                 {% for v in shared_skills.get(skill['t'].get('name')) %}
-                                                <a href="/person?email={{v['p2']['email']}}">
+                                                <a href="/persons/{{v['p2']['email']}}">
                                                     <li>{{v['p2']['first_name']}} {{v['p2']['last_name']}}</li>
                                                 </a>
                                                 {% endfor %}
@@ -220,11 +231,6 @@
                                     </div>
                                 </div>
                                 <div class="modal-footer">
-                                    <span class="badge rounded-pill bg-info">
-                                        {{count_skills[skill['elementid(s)']]}}
-                                        <span class="visually-hidden">endorsements</span>
-
-                                    </span>
                                     {% if not is_user%}
                                     <form method="POST"
                                         action="{{ url_for('endorse_skill', elementid=skill['elementid(s)'])}}">
@@ -271,7 +277,7 @@
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Create Transaction</h1>
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Add Transaction</h1>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
                                 </div>
@@ -279,31 +285,37 @@
                                     <form method="POST" action="{{ url_for('add_transaction') }}">
                                         <div class="mb-3">
                                             <label for="from" class="form-label">From</label>
-                                            <select name ="from" id="from" class="form-select" aria-label="Default select example" required="required">
+                                            <select name="from" id="from" class="form-select"
+                                                aria-label="Default select example" required="required">
                                                 <option value="" selected>-- select --</option>
-                                                
+
                                                 {% for person in all_persons%}
-                                                <option value="{{person.email}}">{{person.last_name}}, {{person.first_name}} </option>
+                                                <option value="{{person.email}}">{{person.last_name}},
+                                                    {{person.first_name}} </option>
                                                 {% endfor %}
-                                              </select>
+                                            </select>
                                         </div>
                                         <div class="mb-3">
                                             <label for="to" class="form-label">To</label>
-                                            <select name ="to" id="to" class="form-select" aria-label="Default select example" required="required">
+                                            <select name="to" id="to" class="form-select"
+                                                aria-label="Default select example" required="required">
                                                 <option value="" selected>-- select --</option>
-                                                
+
                                                 {% for person in all_persons%}
-                                                <option value="{{person.email}}">{{person.last_name}}, {{person.first_name}} </option>
+                                                <option value="{{person.email}}">{{person.last_name}},
+                                                    {{person.first_name}} </option>
                                                 {% endfor %}
-                                              </select>
+                                            </select>
                                         </div>
                                         <div class="mb-3">
                                             <label for="tag" class="form-label">Tag</label>
-                                            <input type="text" class="form-control" id="tag" name="tag" required="required">
+                                            <input type="text" class="form-control" id="tag" name="tag"
+                                                required="required">
                                         </div>
                                         <div class="mb-3">
                                             <label for="date" class="form-label">Date</label>
-                                            <input type="date" class="form-control" id="date" name="date" required="required">
+                                            <input type="date" class="form-control" id="date" name="date"
+                                                required="required">
                                         </div>
 
                                         <button type="submit" class="btn btn-light mb-3">Add</button>
@@ -324,11 +336,13 @@
                 </h5>
                 <div class="card-body">
                     {% for tx in transactions %}
-                    <b>{{tx.date}}</b> <span class="badge bg-secondary">{{tx.t.name}}</span><br/>
-                    <a href="/person?email={{tx.p_from.email}}">{{tx.p_from.first_name}} {{tx.p_from.last_name}}</a> &#x2192; <a href="/person?email={{tx.p_to.email}}">{{tx.p_to.first_name}} {{tx.p_to.last_name}} </a><br/>
-                        </li>
+                    <b>{{tx.date}}</b> <a class="link-light" href="/tags/{{tx.t.name}}"><span class="badge bg-secondary">{{tx.t.name}}</span></a><br />
+                    <a href="/persons/{{tx.p_from.email}}">{{tx.p_from.first_name}} {{tx.p_from.last_name}}</a>
+                    &#x2192; <a href="/persons/{{tx.p_to.email}}">{{tx.p_to.first_name}} {{tx.p_to.last_name}}
+                    </a><br />
+                    </li>
 
-                    
+
 
                     {% endfor %}
 
@@ -360,7 +374,7 @@
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Create Task</h1>
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Add Task</h1>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
                                 </div>
@@ -372,7 +386,8 @@
                                         </div>
                                         <div class="mb-3">
                                             <label for="start_date" class="form-label">Start Date</label>
-                                            <input type="date" class="form-control" id="start_date" name="start_date" required="required">
+                                            <input type="date" class="form-control" id="start_date" name="start_date"
+                                                required="required">
                                         </div>
                                         <div class="mb-3">
                                             <label for="end_date" class="form-label">End Date</label>
@@ -380,14 +395,17 @@
                                         </div>
 
                                         <div class="mb-3">
-                                            <label for="tag" class="form-label">Skill(s) (separate by semicolon ;)</label>
+                                            <label for="tag" class="form-label">Skill(s) (separate by semicolon)</label>
                                             <input type="text" class="form-control" id="tag" name="tag">
                                         </div>
                                         <div class="mb-3">
-                                            <select name ="collaborators" id="collaborators"class="form-select" multiple aria-label="multiple select example" required="required">
-                                                <option value="" selected>Open this select menu</option>
+                                            <label for="collaborators" class="form-label">Collaborators</label>
+                                            <select name="collaborators" id="collaborators" class="form-select" multiple
+                                                aria-label="multiple select example" required="required">
+                                                <option value="" selected>-- select collaborator(s) --</option>
                                                 {% for person in all_persons%}
-                                                <option value="{{person.email}}">{{person.last_name}}, {{person.first_name}} </option>
+                                                <option value="{{person.email}}">{{person.last_name}},
+                                                    {{person.first_name}} </option>
                                                 {% endfor %}
                                             </select>
                                         </div>
@@ -425,7 +443,10 @@
                                 {%endif%}</b>
 
                             {% for t in tags_tasks[task['elementid(t)']] %}
-                            <span class="badge bg-secondary">{{t['tag'].get('name')}}</span>
+                            <a class="link-light" href="/tags/{{t['tag'].get('name')}}">
+
+                                <span class="badge bg-secondary">{{t['tag'].get('name')}}</span>
+                            </a>
                             {% endfor %} <br />
 
                             <p style="font-size: smaller;"><i>{{ task['t'].get('title') }} - </i>{{
@@ -454,17 +475,23 @@
                                                     {% else %} today
                                                     {%endif%}</b></p>
                                             <p>{{ task['t'].get('description') }}</p>
-                                            <p><b>Members:</b> {% for p in shared_tasks[task['elementid(t)']] %}
+
+                                            <p> {% for t in tags_tasks[task['elementid(t)']] %}
+                                                <a class="link-light" href="/tags/{{t['tag'].get('name')}}">
+
+                                                <span class="badge bg-secondary">{{t['tag'].get('name')}}</span>
+                                                </a>
+                                                {% endfor %} 
+                                            <br />
+                                            </p>
+                                            <p><b>Persons:</b> {% for p in shared_tasks[task['elementid(t)']] %}
                                                 <a class="nav-link"
-                                                    href="/person?email={{p['p'].get('email')}}">{{p['p'].get('first_name')}}
+                                                    href="/persons/{{p['p'].get('email')}}">{{p['p'].get('first_name')}}
                                                     {{p['p'].get('last_name')}}
                                                 </a>
                                                 {% endfor %}
                                             </p>
-                                            <p> {% for t in tags_tasks[task['elementid(t)']] %}
-                                                <span class="badge bg-secondary">{{t['tag'].get('name')}}</span>
-                                                {% endfor %} <br />
-                                            </p>
+
 
                                         </div>
                                         <div class="modal-footer">
