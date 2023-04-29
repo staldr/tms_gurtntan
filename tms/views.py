@@ -90,12 +90,14 @@ def person(email):
     
     shared_skills = dict()
     count_skills = dict()
+    endorsed_skill = dict()
     for skill in skills:
         tag = skill['t'].get('name')
         elementid = skill['elementid(s)']
         count = get_count_endorsements_by_skill(elementid)
         persons = find_person_with_shared_skills_by_email(tag,email)
         shared_skills[tag] = persons
+        endorsed_skill[tag] = find_person_who_endorsed_by_skill(elementid)
         count_skills[elementid] = count
 
     tags_tasks = dict()       
@@ -108,7 +110,7 @@ def person(email):
         tags_tasks[elementid] = tags_s
 
     #return persons
-    return render_template("person.html", all_persons=all_persons,transactions=transactions, person=person, tags=tags, tasks=tasks,skills=skills, shared_skills=shared_skills,shared_tasks=shared_tasks,tags_tasks=tags_tasks, is_user=is_user, count_skills=count_skills)
+    return render_template("person.html", endorsed_skill=endorsed_skill,all_persons=all_persons,transactions=transactions, person=person, tags=tags, tasks=tasks,skills=skills, shared_skills=shared_skills,shared_tasks=shared_tasks,tags_tasks=tags_tasks, is_user=is_user, count_skills=count_skills)
 
 '''
 @app.route("/user/shared-skills/<tag>")  
@@ -316,6 +318,11 @@ def tags():
 @app.route('/tags/<name>')
 def tag(name):
     tag = find_tag_by_name(name)
+    followed_tags_other = find_connected_tags_by_name(name, "follows")
+    skilled_tags_other = find_connected_tags_by_name(name, "skilled")
+    helped_tags_other = find_connected_tags_by_name(name, "helped")
+    worked_tags_other = find_connected_tags_by_name(name, "worked")
+
     persons_following = find_person_by_tag(name,"follows")
     persons_skilled = find_person_by_tag(name,"has")
     # persons_working = find_person_by_tag(name,"works_on")
@@ -334,12 +341,7 @@ def tag(name):
     
 
 
-    return render_template("tag.html", transactions=transactions, tag=tag, persons_following=persons_following,persons_skilled=persons_skilled,tasks=tasks,tags_tasks=tags_tasks,shared_tasks=shared_tasks)
+    return render_template("tag.html", worked_tags_other=worked_tags_other,helped_tags_other=helped_tags_other, skilled_tags_other=skilled_tags_other, followed_tags_other=followed_tags_other, transactions=transactions, tag=tag, persons_following=persons_following,persons_skilled=persons_skilled,tasks=tasks,tags_tasks=tags_tasks,shared_tasks=shared_tasks)
 
-@app.route('/tasks/<task_id>')
-def tasks(task_id):
-    task = find_task_by_taskid(task_id)
-    persons = find_persons_by_taskid(task_id)
-    tags = find_tags_by_taskid(task_id)
-    return render_template("tasks.html", persons=persons, tags=tags, task=task)
+
 

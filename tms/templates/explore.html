@@ -3,15 +3,15 @@
 {% block content %}
 
 <div class="container text-left">
-    <h2>Explore</h2>
+    <h2 style="padding-bottom: 15px; padding-top: 20px;">Explore</h2>
     <div class="row align-items-start">
         <div class="col">
             <div class="card">
-                <h5 class="card-header">Recently Added Tags</h5>
+                <h6 class="card-header">Recently Added Tags</h6>
                 <div class="card-body">
                     {% for tag in recently_added_tags %}
                     <a class="link-light" href="/tags/{{ tag['t']['name'] }}">
-                        <span class="badge bg-secondary"> {{ tag['t']['name'] }}
+                        <span class="badge bg-dark"> {{ tag['t']['name'] }}
                         </span>
                     </a>
                     {% endfor %}
@@ -21,15 +21,17 @@
         </div>
         <div class="col">
             <div class="card">
-                <h5 class="card-header">
+                <h6 class="card-header">
                     Most Followed
 
-                </h5>
+                </h6>
                 <div class="card-body">
                     {% for tag in followed_tags %}
 
                     <a class="link-light" href="/tags/{{ tag.name }}">
-                        <span class="badge bg-secondary"> {{ tag.name }} ({{ tag.anz }})
+                        <span class="badge bg-dark"> {{ tag.name }}
+                            <span class="badge text-bg-light">{{ tag.anz }}
+                              </span>
                         </span>
                     </a>
                     {% endfor %}
@@ -39,15 +41,16 @@
         </div>
         <div class="col">
             <div class="card">
-                <h5 class="card-header">
+                <h6 class="card-header">
                     Most Worked On
 
-                </h5>
+                </h6>
                 <div class="card-body">
                     {% for tag in worked_on_tags %}
-
+                    
                     <a class="link-light" href="/tags/{{ tag.name }}">
-                        <span class="badge bg-secondary"> {{ tag.name }} ({{ tag.anz }})
+                        <span class="badge bg-dark"> {{ tag.name }} <span class="badge text-bg-light">{{ tag.anz }}
+                        </span>
                         </span>
                     </a>
                     {% endfor %}
@@ -57,15 +60,16 @@
         </div>
         <div class="col">
             <div class="card">
-                <h5 class="card-header">
+                <h6 class="card-header">
                     Common Skills
 
-                </h5>
+                </h6>
                 <div class="card-body">
                     {% for tag in common_skills %}
 
                     <a class="link-light" href="/tags/{{ tag.name }}">
-                        <span class="badge bg-secondary"> {{ tag.name }} ({{ tag.anz }})
+                        <span class="badge bg-dark"> {{ tag.name }} <span class="badge text-bg-light">{{ tag.anz }}
+                        </span>
                         </span>
                     </a>
                     {% endfor %}
@@ -81,15 +85,16 @@
     <div class="row align-items-start">
         <div class="col">
             <div class="card">
-                <h5 class="card-header">
-                    Transactions
+                <h6 class="card-header">
+                    Most Transactions
 
-                </h5>
+                </h6>
                 <div class="card-body">
                     {% for tx in transaction_tag_count %}
 
                     <a class="link-light" href="/tags/{{ tx.t.name }}">
-                        <span class="badge bg-secondary"> {{ tx.t.name }} ({{ tx.anz }})
+                        <span class="badge bg-dark"> {{ tx.t.name }} <span class="badge text-bg-light">{{ tx.anz }}
+                              </span>
                         </span>
                     </a>
                     {% endfor %}
@@ -99,9 +104,9 @@
         </div>
         <div class="col">
             <div class="card">
-                <h5 class="card-header">
+                <h6 class="card-header">
                     Last Transactions
-                </h5>
+                </h6>
 
                 <div class="card-body">
                     <ul class="list-group list-group-flush">
@@ -109,11 +114,14 @@
                         {% for tx in transactions %}
                         <li class="list-group-item" style="padding: 0px; padding-bottom: 2px; padding-top: 2px;">
 
-                            <b>{{tx.date}}</b><a class="link-light" href="/tags/{{tx.t.name}}"> <span class="badge bg-secondary">{{tx.t.name}}</span></a><br />
-                            <a href="/persons/{{tx.p_from.email}}">{{tx.p_from.first_name}}
-                                {{tx.p_from.last_name}}</a> &#x2192; <a
-                                href="/persons/{{tx.p_to.email}}">{{tx.p_to.first_name}} {{tx.p_to.last_name}}
-                            </a><br />
+                            <span style="font-size: smaller;"><b>{{tx.date}}</b></span><a class="link-light" href="/tags/{{tx.t.name}}"> <span class="badge bg-dark">{{tx.t.name}}</span></a>
+                            <a class="link-light" href="/persons/{{tx.p_from.email}}">
+                                <span class="badge rounded-pill text-bg-light">{{tx.p_from.last_name}}, {{tx.p_from.first_name}}</span>
+                            </a>
+                            <span style="font-size: smaller;">&#x2192;</span>
+                            <a class="link-light" href="/persons/{{tx.p_to.email}}">
+                                <span class="badge rounded-pill text-bg-light">{{tx.p_to.last_name}}, {{tx.p_to.first_name}}</span>
+                            </a>
                         </li>
                         {% endfor %}
                     </ul>

@@ -10,31 +10,27 @@
 <div class="container text-left">
 
     <div class="row align-items-start">
-        <div class="col"> <!--Contact-->
+        <div class="col " style="padding-top: 20px;"> <!--Contact-->
+            <div>
+                <h2 style="padding-bottom: 15px;">{{ person.first_name }} {{ person.last_name }}, {{
+                        person.job_title }}
 
-            <table>
-                <th>
-                    <h4> {{ person.first_name }} {{ person.last_name }}, {{ person.job_title }}</h4>
-                </th>
+                        <a class="link-dark" href="mailto:{{person.email}}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-envelope-fill" viewBox="0 0 16 16">
+                                <path
+                                    d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414.05 3.555ZM0 4.697v7.104l5.803-3.558L0 4.697ZM6.761 8.83l-6.57 4.027A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586l-1.239-.757Zm3.436-.586L16 11.801V4.697l-5.803 3.546Z" />
+                            </svg></a>
+                        <a class="link-dark" href="tel:{{person.phone}}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-telephone-fill" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                    d="M1.885.511a1.745 1.745 0 0 1 2.61.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.678.678 0 0 0 .178.643l2.457 2.457a.678.678 0 0 0 .644.178l2.189-.547a1.745 1.745 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.634 18.634 0 0 1-7.01-4.42 18.634 18.634 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877L1.885.511z" />
+                            </svg></a>
 
-                <th>
-                    <a class="link-secondary" href="mailto:{{person.email}}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                            class="bi bi-envelope-fill" viewBox="0 0 16 16">
-                            <path
-                                d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414.05 3.555ZM0 4.697v7.104l5.803-3.558L0 4.697ZM6.761 8.83l-6.57 4.027A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586l-1.239-.757Zm3.436-.586L16 11.801V4.697l-5.803 3.546Z" />
-                        </svg>
-                    </a>
-                </th>
-                <th>
-                    <a class="link-secondary" href="tel:{{person.phone}}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                            class="bi bi-telephone-fill" viewBox="0 0 16 16">
-                            <path fill-rule="evenodd"
-                                d="M1.885.511a1.745 1.745 0 0 1 2.61.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.678.678 0 0 0 .178.643l2.457 2.457a.678.678 0 0 0 .644.178l2.189-.547a1.745 1.745 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.634 18.634 0 0 1-7.01-4.42 18.634 18.634 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877L1.885.511z" />
-                        </svg>
-                </th>
-            </table>
+                    </h2>
+
+            </div>
         </div>
     </div>
 </div>
@@ -42,12 +38,12 @@
     <div class="row align-items-start">
         <div class="col"> <!--Interest-->
             <div class="card">
-                <h5 class="card-header">
-                    My Interests
+                <h6 class="card-header">
+                    Interests
                     <!-- start is_user -->
                     {% if is_user%}
                     <!-- Button trigger modal -->
-                    <a href="#" data-bs-toggle="modal" data-bs-target="#addtag">
+                    <a href="#" class="link-dark" data-bs-toggle="modal" data-bs-target="#addtag">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                             class="bi bi-pencil-square" viewBox="0 0 16 16">
                             <path
@@ -62,7 +58,7 @@
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Edit My Interests</h1>
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Edit Interests</h1>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
                                 </div>
@@ -96,8 +92,7 @@
                                     </form>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary"
-                                        data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Close</button>
                                 </div>
                             </div>
                         </div>
@@ -105,14 +100,14 @@
                     <!--End of modal-->
                     {% endif %}
                     <!-- end is_user -->
-                </h5>
+                </h6>
 
                 <div class="card-body">
                     <p class="card-text">
 
                         {% for tag in tags %}
                         <a class="link-light" href="/tags/{{ tag['t'].get('name') }}">
-                            <span class="badge bg-secondary">{{ tag['t'].get('name') }}</span>
+                            <span class="badge bg-dark">{{ tag['t'].get('name') }}</span>
                         </a>
                         {% endfor %}
                     </p>
@@ -124,11 +119,11 @@
         </div>
         <div class="col"> <!--Skills-->
             <div class="card">
-                <h5 class="card-header">
-                    My Skills
+                <h6 class="card-header">
+                    Skills
                     {% if is_user%}
                     <!-- Button trigger modal -->
-                    <a href="#" data-bs-toggle="modal" data-bs-target="#addskill">
+                    <a href="#" class="link-dark" data-bs-toggle="modal" data-bs-target="#addskill">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                             class="bi bi-plus-square" viewBox="0 0 16 16">
                             <path
@@ -150,7 +145,7 @@
                                 <div class="modal-body">
                                     <form method="POST" action="{{ url_for('add_skill') }}">
                                         <div class="mb-3">
-                                            <label for="tag" class="form-label">Skill</label>
+                                            <label for="tag" class="form-label">Tag</label>
                                             <input type="text" class="form-control" id="tag" name="tag">
                                         </div>
                                         <div class="mb-3">
@@ -164,8 +159,7 @@
 
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary"
-                                        data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Close</button>
                                 </div>
                             </div>
                         </div>
@@ -173,15 +167,15 @@
                     <!--End of modal-->
                     {% endif %}
                     <!-- end is_user -->
-                </h5>
+                </h6>
                 <div class="card-body">
                     {% for skill in skills %}
 
                     <!-- Button trigger modal -->
                     <a class="link-light" href="#" data-bs-toggle="modal"
                         data-bs-target="#{{ skill['s'].get('created') }}">
-                        <span class="badge bg-secondary">{{ skill['t'].get('name') }}
-                            <span class="badge rounded-pill bg-info">
+                        <span class="badge bg-dark">{{ skill['t'].get('name') }}
+                            <span class="badge rounded-pill text-bg-light">
                                 {{count_skills[skill['elementid(s)']]}}
                                 <span class="visually-hidden">endorsements</span>
 
@@ -196,14 +190,10 @@
                                 <div class="modal-header">
                                     <h1 class="modal-title fs-5" id="exampleModalLabel">
                                         <a class="link-light" href="/tags/{{ skill['t'].get('name') }}">
-                                            <span class="badge bg-secondary">{{ skill['t'].get('name') }}
+                                            <span class="badge bg-dark">{{ skill['t'].get('name') }}
 
                                         </a>
-                                        <span class="badge rounded-pill bg-info">
-                                            {{count_skills[skill['elementid(s)']]}}
-                                            <span class="visually-hidden">endorsements</span>
-
-                                        </span>
+                                        
 
 
 
@@ -217,21 +207,32 @@
                                     <br />
                                     <br />
                                     <div class="card">
+                                        <h6 class="card-header">Other persons skilled in {{ skill['t'].get('name') }}:</h6>
                                         <div class="card-body">
-                                            <b>Other persons with this skill:</b>
-                                            <ul>
-                                                {% for v in shared_skills.get(skill['t'].get('name')) %}
-                                                <a href="/persons/{{v['p2']['email']}}">
-                                                    <li>{{v['p2']['first_name']}} {{v['p2']['last_name']}}</li>
-                                                </a>
-                                                {% endfor %}
-                                            </ul>
-
+                                            {% for p in shared_skills.get(skill['t'].get('name')) %}
+                                            <a class="link-light" href="/persons/{{p['p2']['email']}}">
+                                                <span class="badge rounded-pill text-bg-light">
+                                                    {{p['p2']['last_name']}}, {{p['p2']['first_name']}}</span>
+                                            </a>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <br/>
+                                    <div class="card">
+                                        <h6 class="card-header"><span class="badge rounded-pill bg-info">
+                                            {{count_skills[skill['elementid(s)']]}}
+                                        </span> endorsements by:</h6>
+                                        <div class="card-body">
+                                            {% for p in endorsed_skill.get(skill['t'].get('name')) %}
+                                            <a class="link-light" href="/persons/{{p['p']['email']}}">
+                                                <span class="badge rounded-pill text-bg-light">{{p['p']['last_name']}}, {{p['p']['first_name']}}</span>
+                                            </a>
+                                            {% endfor %}
                                         </div>
                                     </div>
                                 </div>
                                 <div class="modal-footer">
-                                    {% if not is_user%}
+                                    {% if not is_user and session['user'] %}
                                     <form method="POST"
                                         action="{{ url_for('endorse_skill', elementid=skill['elementid(s)'])}}">
                                         <button class="btn btn-info" type="submit">Endorse</button>
@@ -243,8 +244,7 @@
                                         <button class="btn btn-danger" type="submit">Remove</button>
                                     </form>
                                     {% endif %}
-                                    <button type="button" class="btn btn-secondary"
-                                        data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Close</button>
                                 </div>
                             </div>
                         </div>
@@ -257,12 +257,12 @@
             </div>
         </div>
         <div class="col"> <!--Transactions-->
-            <div class="card">
-                <h5 class="card-header">
-                    My Transactions
+            <div class="card" style="width: 550px;">
+                <h6 class="card-header">
+                    Transactions
                     {% if is_user%}
                     <!-- Button trigger modal -->
-                    <a href="#" data-bs-toggle="modal" data-bs-target="#addtransaction">
+                    <a href="#" class="link-dark" data-bs-toggle="modal" data-bs-target="#addtransaction">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                             class="bi bi-plus-square" viewBox="0 0 16 16">
                             <path
@@ -324,8 +324,7 @@
 
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary"
-                                        data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Close</button>
                                 </div>
                             </div>
                         </div>
@@ -333,19 +332,27 @@
                     <!--End of modal-->
                     {% endif %}
                     <!-- end is_user -->
-                </h5>
+                </h6>
                 <div class="card-body">
-                    {% for tx in transactions %}
-                    <b>{{tx.date}}</b> <a class="link-light" href="/tags/{{tx.t.name}}"><span class="badge bg-secondary">{{tx.t.name}}</span></a><br />
-                    <a href="/persons/{{tx.p_from.email}}">{{tx.p_from.first_name}} {{tx.p_from.last_name}}</a>
-                    &#x2192; <a href="/persons/{{tx.p_to.email}}">{{tx.p_to.first_name}} {{tx.p_to.last_name}}
-                    </a><br />
-                    </li>
+                    <ul class="list-group list-group-flush">
 
+                        {% for tx in transactions %}
+                        <li class="list-group-item" style="padding: 0px; padding-bottom: 2px; padding-top: 2px;">
 
-
-                    {% endfor %}
-
+                            <span style="font-size: smaller;"><b>{{tx.date}}</b></span><a class="link-light"
+                                href="/tags/{{tx.t.name}}"> <span class="badge bg-dark">{{tx.t.name}}</span></a>
+                            <a class="link-light" href="/persons/{{tx.p_from.email}}">
+                                <span class="badge rounded-pill text-bg-light">{{tx.p_from.last_name}},
+                                    {{tx.p_from.first_name}}</span>
+                            </a>
+                            <span style="font-size: smaller;">&#x2192;</span>
+                            <a class="link-light" href="/persons/{{tx.p_to.email}}">
+                                <span class="badge rounded-pill text-bg-light">{{tx.p_to.last_name}},
+                                    {{tx.p_to.first_name}}</span>
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
 
                 </div>
             </div>
@@ -356,10 +363,10 @@
     <div class="row align-items-start">
         <div class="col">
             <div class="card">
-                <h5 class="card-header">My Tasks
+                <h6 class="card-header">Tasks
                     {% if is_user%}
                     <!-- Button trigger modal -->
-                    <a href="#" data-bs-toggle="modal" data-bs-target="#addtask">
+                    <a href="#" class="link-dark" data-bs-toggle="modal" data-bs-target="#addtask">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                             class="bi bi-plus-square" viewBox="0 0 16 16">
                             <path
@@ -395,7 +402,7 @@
                                         </div>
 
                                         <div class="mb-3">
-                                            <label for="tag" class="form-label">Skill(s) (separate by semicolon)</label>
+                                            <label for="tag" class="form-label">Tag(s) (separate by semicolon)</label>
                                             <input type="text" class="form-control" id="tag" name="tag">
                                         </div>
                                         <div class="mb-3">
@@ -420,8 +427,7 @@
 
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary"
-                                        data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Close</button>
                                 </div>
                             </div>
                         </div>
@@ -429,7 +435,7 @@
                     <!--End of modal-->
                     {% endif %}
                     <!-- end is_user -->
-                </h5>
+                </h6>
                 <div class="card-body">
                     <ul class="list-group list-group-flush">
 
@@ -445,7 +451,7 @@
                             {% for t in tags_tasks[task['elementid(t)']] %}
                             <a class="link-light" href="/tags/{{t['tag'].get('name')}}">
 
-                                <span class="badge bg-secondary">{{t['tag'].get('name')}}</span>
+                                <span class="badge bg-dark">{{t['tag'].get('name')}}</span>
                             </a>
                             {% endfor %} <br />
 
@@ -454,7 +460,8 @@
 
 
                                 <!-- Button trigger modal -->
-                                <a href="#" data-bs-toggle="modal" data-bs-target="#{{task.get('elementid(t)')}}">
+                                <a href="#" class="link-dark" data-bs-toggle="modal"
+                                    data-bs-target="#{{task.get('elementid(t)')}}">
                                     <i>> Details</i>
                                 </a>
                                 <!-- Modal -->
@@ -479,23 +486,27 @@
                                             <p> {% for t in tags_tasks[task['elementid(t)']] %}
                                                 <a class="link-light" href="/tags/{{t['tag'].get('name')}}">
 
-                                                <span class="badge bg-secondary">{{t['tag'].get('name')}}</span>
-                                                </a>
-                                                {% endfor %} 
-                                            <br />
-                                            </p>
-                                            <p><b>Persons:</b> {% for p in shared_tasks[task['elementid(t)']] %}
-                                                <a class="nav-link"
-                                                    href="/persons/{{p['p'].get('email')}}">{{p['p'].get('first_name')}}
-                                                    {{p['p'].get('last_name')}}
+                                                    <span class="badge bg-dark">{{t['tag'].get('name')}}</span>
                                                 </a>
                                                 {% endfor %}
+                                                <br />
                                             </p>
-
+                                            <div class="card">
+                                                <h6 class="card-header">Other persons working on this task:</h6>
+                                                <div class="card-body">
+                                                    {% for p in shared_tasks[task['elementid(t)']] %}
+                                                    <a class="link-light" href="/persons/{{p['p'].get('email')}}">
+                                                        <span
+                                                            class="badge rounded-pill text-bg-light">{{p['p'].get('last_name')}},
+                                                            {{p['p'].get('first_name')}}</span>
+                                                    </a>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
 
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary"
+                                            <button type="button" class="btn btn-dark"
                                                 data-bs-dismiss="modal">Close</button>
                                         </div>
                                     </div>

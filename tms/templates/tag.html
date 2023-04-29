@@ -3,36 +3,149 @@
 {% block content %}
 
 <div class="container text-left">
-    <h2>{{ tag.name }}</h2>
+    <h2 style="padding-bottom: 15px; padding-top: 20px;">{{ tag.name }}</h2>
     <div class="row align-items-start">
         <div class="col">
             <div class="card">
-                <h5 class="card-header">Who is interested in {{ tag.name }}?</h5>
-                <ul class="list-group">
+                <h6 class="card-header">Related Tags
+                </h6>
+                <div class="card-body">
+                    <div class="accordion accordion-flush" id="accordionFlushExample">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#flush-collapseOne" aria-expanded="false"
+                                    aria-controls="flush-collapseOne">
+                                    People interested in {{tag.name}} are also interested in ...
+                                </button>
+                            </h2>
+                            <div id="flush-collapseOne" class="accordion-collapse collapse"
+                                data-bs-parent="#accordionFlushExample">
+                                <div class="accordion-body">
+                                    {% if not followed_tags_other%}
+                                    <p style="font-size: smaller; font-style: italic;">
+                                        No one seems to be interested in {{ tag.name }} :'-&#40;
+                                    </p>
+                                    {%endif%}
+                                    {% for tag in followed_tags_other%}
+                                    <a class="link-light" href="/tags/{{ tag.name }}">
+                                        <span class="badge bg-dark">{{ tag.name }}</span>
+                                    </a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#flush-collapseTwo" aria-expanded="false"
+                                    aria-controls="flush-collapseTwo">
+                                    People skilled in {{tag.name}} are also skilled in ...
+                                </button>
+                            </h2>
+                            <div id="flush-collapseTwo" class="accordion-collapse collapse"
+                                data-bs-parent="#accordionFlushExample">
+                                <div class="accordion-body">
+                                    {% if not skilled_tags_other%}
+                                    <p style="font-size: smaller; font-style: italic;">
+                                        No one seems to possess this skill :-&#40;
+                                    </p>
+                                    {%endif%}
+                                    {% for tag in skilled_tags_other%}
+                                    <a class="link-light" href="/tags/{{ tag.name }}">
+                                        <span class="badge bg-dark">{{ tag.name }}</span>
+                                    </a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#flush-collapseThree" aria-expanded="false"
+                                    aria-controls="flush-collapseThree">
+                                    People helping with {{tag.name}} are also helping with ...
+                                </button>
+                            </h2>
+                            <div id="flush-collapseThree" class="accordion-collapse collapse"
+                                data-bs-parent="#accordionFlushExample">
+                                <div class="accordion-body">
+                                    {% if not helped_tags_other%}
+                                    <p style="font-size: smaller; font-style: italic;">
+                                        There are no transaction with {{ tag.name }}. 
+                                    </p>
+                                    {%endif%}
+                                    {% for tag in helped_tags_other%}
+                                    <a class="link-light" href="/tags/{{ tag.name }}">
+                                        <span class="badge bg-dark">{{ tag.name }}</span>
+                                    </a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#flush-collapseFour" aria-expanded="false"
+                                    aria-controls="flush-collapseFour">
+                                    People working on {{tag.name}} are also working on ...
+                                </button>
+                            </h2>
+                            <div id="flush-collapseFour" class="accordion-collapse collapse"
+                                data-bs-parent="#accordionFlushExample">
+                                <div class="accordion-body">
+                                    {% if not worked_tags_other%}
+                                    <p style="font-size: smaller; font-style: italic;">
+                                        No one seems to work on a task including {{ tag.name }} ...
+                                    </p>
+                                    {%endif%}
+                                    {% for tag in worked_tags_other%}
+                                    <a class="link-light" href="/tags/{{ tag.name }}">
+                                        <span class="badge bg-dark">{{ tag.name }}</span>
+                                    </a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container text-left" style="padding-top: 15px;">
+    <div class="row align-items-start">
+        <div class="col">
+            <div class="card">
+                <h6 class="card-header">Who is interested in {{ tag.name }}?</h6>
+                <div class="card-body">
                     {% for person in persons_following%}
-                    <li class="list-group-item">
-                        <a href="/persons/{{person.p.email}}">{{person.p.last_name}}, {{person.p.first_name}}</a>
-                    </li>
+                    <a class="link-light" href="/persons/{{person.p.email}}">
+                        <span class="badge rounded-pill text-bg-light">{{person.p.last_name}},
+                            {{person.p.first_name}}</span>
+                    </a>
                     {% endfor %}
-                </ul>
+                </div>
             </div>
         </div>
         <div class="col">
             <div class="card">
-                <h5 class="card-header">Who is skilled in {{ tag.name }}?</h5>
-                <ul class="list-group">
+                <h6 class="card-header">Who is skilled in {{ tag.name }}?</h6>
+                <div class="card-body">
                     {% for person in persons_skilled%}
-                    <li class="list-group-item">
-                        <a href="/persons/{{person.p.email}}">{{person.p.last_name}}, {{person.p.first_name}} </a>
-                    </li>
+                    <a class="link-light" href="/persons/{{person.p.email}}">
+                        <span class="badge rounded-pill text-bg-light">{{person.p.last_name}},
+                            {{person.p.first_name}}</span>
+                    </a>
                     {% endfor %}
-                </ul>
+                </div>
             </div>
         </div>
         <!--
         <div class="col">
             <div class="card">
-                <h5 class="card-header">Who is working on {{ tag.name }}?</h5>
+                <h6 class="card-header">Who is working on {{ tag.name }}?</h6>
                 <ul class="list-group">
                     {% for person in persons_working%}
                     <li class="list-group-item">
@@ -43,33 +156,34 @@
             </div>
         </div>
     -->
-    <div class="col">
-        <div class="card">
-            <h5 class="card-header">Who helps with {{ tag.name }}?</h5>
-            <ul class="list-group">
-                {% for tx in transactions%}
-                <li class="list-group-item">
-                    <a href="/persons/{{tx.p_from.email}}">{{tx.p_from.last_name}}, {{tx.p_from.first_name}} </a>
-                    helped {{ tx.anz }} time{% if tx.anz > 1%}s{% endif %}
-                </li>
-                
-                {% endfor %}
-            </ul>
+        <div class="col">
+            <div class="card">
+                <h6 class="card-header">Who helps with {{ tag.name }}?</h6>
+                <div class="card-body">
+                    {% for tx in transactions%}
+                    <a class="link-light" href="/persons/{{tx.p_from.email}}">
+                        <span class="badge rounded-pill text-bg-light">{{tx.p_from.last_name}}, {{tx.p_from.first_name}}
+                            <span class="badge text-bg-dark"> {{ tx.anz }}
+                                <span class="visually-hidden">helped {{ tx.anz }} time{% if tx.anz > 1%}s{% endif
+                                    %}</span>
+                            </span>
+                        </span>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
     </div>
-    </div>
-
-
-
 </div>
+
 
 <div class="container text-left" style="padding-top: 15px;">
     <h2> </h2>
     <div class="row align-items-start">
         <div class="col">
             <div class="card">
-                <h5 class="card-header">What task include {{ tag.name }}?
-                </h5>
+                <h6 class="card-header">What task include {{ tag.name }}?
+                </h6>
                 <div class="card-body">
                     <ul class="list-group list-group-flush">
                         {% for task in tasks%}
@@ -82,7 +196,7 @@
 
                             {% for t in tags_tasks[task['elementid(t)']] %}
                             <a class="link-light" href="/tags/{{t['tag'].get('name')}}">
-                                <span class="badge bg-secondary">{{t['tag'].get('name')}}</span>
+                                <span class="badge bg-dark">{{t['tag'].get('name')}}</span>
                             </a>
                             {% endfor %} <br />
                             <p style="font-size: smaller;"><i>{{ task['t'].get('title') }} - </i>{{
@@ -112,10 +226,10 @@
                                             <p> {% for t in tags_tasks[task['elementid(t)']] %}
                                                 <a class="link-light" href="/tags/{{t['tag'].get('name')}}">
 
-                                                <span class="badge bg-secondary">{{t['tag'].get('name')}}</span>
+                                                    <span class="badge bg-dark">{{t['tag'].get('name')}}</span>
                                                 </a>
-                                                {% endfor %} 
-                                            <br />
+                                                {% endfor %}
+                                                <br />
                                             </p>
                                             <p><b>Persons:</b> {% for p in shared_tasks[task['elementid(t)']] %}
                                                 <a class="nav-link"
@@ -128,7 +242,7 @@
 
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary"
+                                            <button type="button" class="btn btn-dark"
                                                 data-bs-dismiss="modal">Close</button>
                                         </div>
                                     </div>
@@ -146,6 +260,7 @@
 
     </div>
 </div>
+
 
 
 {% endblock %}

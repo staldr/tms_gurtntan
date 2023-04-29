@@ -3,16 +3,16 @@
 {% block content %}
 
 <div class="container text-left">
-    <h2>Persons</h2>
+    <h2 style="padding-bottom: 15px; padding-top: 20px;">Persons</h2>
     <div class="row align-items-start">
 
-                    <ul class="list-group">
-                        {% for person in persons%}
-                        <li class="list-group-item">
-                            <a href="/persons/{{person.email}}">{{person.last_name}}, {{person.first_name}}</a>
-                        </li>
-                        {% endfor %}
-                    </ul>
+            {% for person in persons%}
+
+                <a class="link-light" href="/persons/{{person.email}}">
+                            <span class=" badge text-bg-light"> {{person.last_name}}, {{person.first_name}}
+                    </span>
+                </a>
+            {% endfor %}
     </div>
 
 </div>

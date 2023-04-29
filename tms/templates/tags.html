@@ -3,12 +3,12 @@
 {% block content %}
 
 <div class="container text-left">
-    <h2>Tags</h2>
+    <h2 style="padding-bottom: 15px; padding-top: 20px;">Tags</h2>
     <div class="row align-items-start">
 
                         {% for tag in tags%}
                         <a class="link-light" href="/tags/{{tag.t.name}}">
-                            <span class="badge bg-secondary"> {{tag.t.name}}
+                            <span class="badge bg-dark"> {{tag.t.name}}
                             </span>
                         </a>
                         {% endfor %}

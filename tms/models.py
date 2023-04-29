@@ -145,19 +145,38 @@ def find_task_by_tag(tag):
 
 def find_tags_by_email(email):
     with tms_db.session() as session:
-        result = session.run("MATCH (p:person)-[r:follows]->(t:tag) where p.email = $email return t", email=email)
+        result = session.run("MATCH (p:person)-[r:follows]->(t:tag) where p.email = $email return t order by t.name", email=email)
         data = result.data()
         return data
 
 def find_tasks_by_email(email):
     with tms_db.session() as session:
-        result = session.run("MATCH (p:person)-[r:works_on]->(t:task) where p.email = $email return t,elementid(t)", email=email)
+        result = session.run("MATCH (p:person)-[r:works_on]->(t:task) where p.email = $email return t,elementid(t) order by t.start_date desc", email=email)
         data = result.data()
         return data
     
 def find_tags_by_taskid(elementid):
     with tms_db.session() as session:
-        result = session.run("MATCH (t:task)-[r2:includes]->(tag:tag) where elementid(t) = $elementid return tag", elementid=elementid)
+        result = session.run("MATCH (t:task)-[r2:includes]->(tag:tag) where elementid(t) = $elementid return tag order by tag.name", elementid=elementid)
+        data = result.data()
+        return data
+    
+    
+def find_connected_tags_by_name(name, rel_type):
+    if rel_type == "follows":
+        query = "match (t:tag)-[r]-(p:person)-[r2]-(t2:tag) where t.name = $name"
+    elif rel_type == "skilled":
+        query = "match (t:tag)-[:includes]-(:skill)-[:has]-(p:person)-[:has]-(:skill)-[:includes]-(t2:tag) where t.name = $name"
+    elif rel_type == "helped":
+        query = "match (t:tag)-[:includes]-(:transaction)<-[:from]-(:person)-[:from]->(:transaction)-[:includes]-(t2:tag) where t.name = $name"
+    elif rel_type == "worked":
+        query = "match (t:tag)-[:includes]-(:task)<-[:works_on]-(:person)-[:works_on]->(:task)-[:includes]-(t2:tag) where t.name = $name"
+
+    
+    query += " return distinct t2.name as name order by t2.name"
+
+    with tms_db.session() as session:
+        result = session.run(query, name=name)
         data = result.data()
         return data
     
@@ -169,19 +188,19 @@ def find_task_by_taskid(elementid):
     
 def find_skills_by_email(email):
     with tms_db.session() as session:
-        result = session.run("MATCH (p:person)-[r:has]->(s:skill)-[r2:includes]->(t:tag) where p.email = $email return s,t,elementid(s)", email=email)
+        result = session.run("MATCH (p:person)-[r:has]->(s:skill)-[r2:includes]->(t:tag) where p.email = $email return s,t,elementid(s) order by t.name", email=email)
         data = result.data()
         return data
     
 def find_person_with_shared_skills_by_email(tag,email):
     with tms_db.session() as session:
-        result = session.run("MATCH (p1:person)-[rps1:has]->(s1:skill)-[rst1:includes]->(t:tag)<-[rst2:includes]-(s2:skill)<-[rps2:has]-(p2:person) where p1.email = $email and t.name = $tag return p2", email=email, tag=tag)
+        result = session.run("MATCH (p1:person)-[rps1:has]->(s1:skill)-[rst1:includes]->(t:tag)<-[rst2:includes]-(s2:skill)<-[rps2:has]-(p2:person) where p1.email = $email and t.name = $tag return p2 order by p2.last_name", email=email, tag=tag)
         data = result.data()
         return data
     
 def find_persons_by_taskid(elementid):
     with tms_db.session() as session:
-        result = session.run("MATCH (t:task)<-[r:works_on]-(p:person) where elementid(t) = $elementid return p", elementid=elementid)
+        result = session.run("MATCH (t:task)<-[r:works_on]-(p:person) where elementid(t) = $elementid return p order by p.last_name", elementid=elementid)
         data = result.data()
         return data
     
@@ -193,6 +212,19 @@ def find_persons_by_input(input):
                                 RETURN p''', input=input)
         data = result.data()
         return data
+    
+def find_person_who_endorsed_by_skill(elementid):
+    query = '''
+    match (s:skill)<-[r:endorses]-(p:person)
+    where elementid(s) = $elementid
+    return distinct p
+    order by p.last_name
+    '''
+    with tms_db.session() as tx:
+        result = tx.run(query, elementid=elementid)
+        data = result.data()
+    return data
+       
 
 def get_count_endorsements_by_skill(elementid):
     query = '''
