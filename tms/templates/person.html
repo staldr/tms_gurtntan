@@ -39,7 +39,7 @@
         <div class="col"> <!--Interest-->
             <div class="card">
                 <h6 class="card-header">
-                    Interests
+                    Followed Tags
                     <!-- start is_user -->
                     {% if is_user%}
                     <!-- Button trigger modal -->
@@ -58,24 +58,11 @@
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Edit Interests</h1>
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Remove Tag(s)</h1>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <p>Add Interest</p>
-                                    <div class="col-6">
-                                        <form method="POST" action="{{ url_for('add_tag', rel_type='follows') }}">
-                                            <div class="input-group input-group-sm mb-3">
-                                                <input type="text" class="form-control"
-                                                    aria-label="Sizing example input"
-                                                    aria-describedby="inputGroup-sizing-sm" name="tag">
-                                                <span class="input-group-text" id="inputGroup-sizing-sm"><button
-                                                        class="btn btn-sm" type="submit">Add</button></span>
-                                            </div>
-                                        </form>
-                                    </div>
-                                    <p>Remove Interest</p>
                                     <form method="POST" action="{{ url_for('remove_tag', rel_type='follows') }}">
                                         {% for tag in tags %}
                                         <div class="form-check form-check-inline">
@@ -103,6 +90,17 @@
                 </h6>
 
                 <div class="card-body">
+                    {% if is_user%}
+                    <form method="POST" action="{{ url_for('add_tag', rel_type='follows') }}">
+                        <div class="input-group input-group-sm mb-3">
+                            <input type="text" class="form-control"
+                                aria-label="Sizing example input"
+                                aria-describedby="inputGroup-sizing-sm" name="tag" required="required">
+                            <span class="input-group-text" id="inputGroup-sizing-sm"><button
+                                    class="btn btn-sm" type="submit">Follow</button></span>
+                        </div>
+                    </form>
+                    {% endif %}
                     <p class="card-text">
 
                         {% for tag in tags %}
@@ -111,6 +109,7 @@
                         </a>
                         {% endfor %}
                     </p>
+
 
 
                 </div>

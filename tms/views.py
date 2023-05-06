@@ -26,15 +26,14 @@ def register():
         job_title = request.form["job_title"]
         password = bcrypt.hashpw(request.form["password"].encode('utf-8'), salt)
 
-        user = User(first_name, last_name, email, phone, job_title, password)
+        response = register_user(first_name, last_name, email, phone, job_title, password)
 
-        response = user.register(user)
         if response == False:
             flash("Email address already exists.")
             return render_template("register.html")
         else:
             flash("Successfully registrated. Please log in.")
-            return redirect(url_for("login"))
+            return redirect(url_for("login")) 
         
     elif request.method == "GET":
         return render_template("register.html")
@@ -203,7 +202,6 @@ def add_skill():
         with s,t
         MATCH (p:person) WHERE p.email = $email
         MERGE (p)-[:has]->(s)-[:includes]->(t)
-        ON CREATE SET r.created = datetime()
     '''
     if request.method == "POST":
         with tms_db.session() as tx:
@@ -312,30 +310,30 @@ def tags():
 @app.route('/tags/<name>')
 def tag(name):
     tag = find_tag_by_name(name)
-    followed_tags_other = find_connected_tags_by_name(name, "follows")
-    skilled_tags_other = find_connected_tags_by_name(name, "skilled")
-    helped_tags_other = find_connected_tags_by_name(name, "helped")
-    worked_tags_other = find_connected_tags_by_name(name, "worked")
+    if tag:
+        followed_tags_other = find_connected_tags_by_name(name, "follows")
+        skilled_tags_other = find_connected_tags_by_name(name, "skilled")
+        helped_tags_other = find_connected_tags_by_name(name, "helped")
+        worked_tags_other = find_connected_tags_by_name(name, "worked")
 
-    persons_following = find_person_by_tag(name,"follows")
-    persons_skilled = find_person_by_tag(name,"has")
-    # persons_working = find_person_by_tag(name,"works_on")
-    tasks = find_task_by_tag(name)
-    transactions = find_transaction_by_tag(name)
- 
+        persons_following = find_person_by_tag(name,"follows")
+        persons_skilled = find_person_by_tag(name,"has")
+        # persons_working = find_person_by_tag(name,"works_on")
+        tasks = find_task_by_tag(name)
+        transactions = find_transaction_by_tag(name)
     
-    tags_tasks = dict()       
-    shared_tasks = dict()
-    for task in tasks:
-        elementid = task['elementid(t)']
-        persons = find_persons_by_taskid(elementid)
-        shared_tasks[elementid] = persons
-        tags_s = find_tags_by_taskid(elementid)
-        tags_tasks[elementid] = tags_s
-    
+        tags_tasks = dict()       
+        shared_tasks = dict()
+        for task in tasks:
+            elementid = task['elementid(t)']
+            persons = find_persons_by_taskid(elementid)
+            shared_tasks[elementid] = persons
+            tags_s = find_tags_by_taskid(elementid)
+            tags_tasks[elementid] = tags_s
 
-
-    return render_template("tag.html", worked_tags_other=worked_tags_other,helped_tags_other=helped_tags_other, skilled_tags_other=skilled_tags_other, followed_tags_other=followed_tags_other, transactions=transactions, tag=tag, persons_following=persons_following,persons_skilled=persons_skilled,tasks=tasks,tags_tasks=tags_tasks,shared_tasks=shared_tasks)
+        return render_template("tag.html", worked_tags_other=worked_tags_other,helped_tags_other=helped_tags_other, skilled_tags_other=skilled_tags_other, followed_tags_other=followed_tags_other, transactions=transactions, tag=tag, persons_following=persons_following,persons_skilled=persons_skilled,tasks=tasks,tags_tasks=tags_tasks,shared_tasks=shared_tasks)
+    else: 
+        return 404
 
 
 
