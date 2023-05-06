@@ -71,7 +71,7 @@ class User(Person):
     def create_user(cls, user):
         with tms_db.session() as session:
                 query = '''
-                        MERGE (u:user {
+                        CREATE (u:user {
                                 email: $email
                                 ,password: $password
                                 })
@@ -99,7 +99,7 @@ def find_person_by_email(email):
         try:
             result = session.run("MATCH (p:person) where p.email = $email return p", email=email)
             record = result.single()["p"]
-        except TypeError as e:
+        except TypeError as e:# TODO
             data = {'message': 'This is an example response.'}
             response = make_response(jsonify(data))
             response.status = '200 OK'
@@ -228,9 +228,20 @@ def find_person_who_endorsed_by_skill(elementid):
 
 def get_count_endorsements_by_skill(elementid):
     query = '''
-        match (s:skill)<-[r:endorses]-(p:person)
+        match (s:skill)<-[r:endorses]-(:person)
         where elementid(s) = $elementid
         return count(r) as count
+    '''
+    with tms_db.session() as tx:
+        result = tx.run(query, elementid=elementid)
+        data = result.single()["count"]
+        return data
+    
+def get_endorsements_by_skill(elementid):
+    query = '''
+        match (s:skill)<-[r:endorses]-(p:person)
+        where elementid(s) = $elementid
+        return count(r) as count, distinct p
     '''
     with tms_db.session() as tx:
         result = tx.run(query, elementid=elementid)
@@ -252,7 +263,7 @@ def get_transaction():
         return data
     
 def get_transaction_tag_count():
-    query = "match (tx)-[r3:includes]->(t:tag) return count(t) as anz, t order by count(t) desc"  
+    query = "match (:transaction)-[r3:includes]->(t:tag) return count(t) as anz, t order by count(t) desc"  
     with tms_db.session() as tx:
         result = tx.run(query)
         data = [record for record in result]
@@ -265,9 +276,9 @@ def get_persons():
         return data
     
 def find_transaction_by_email(email):
-    query = "match (p2:person)<-[r2:to]-(tx:transaction)<-[r:from]-(p1:person), (tx)-[r3:includes]->(t:tag) where p2.email = $email1 or p1.email = $email2 return tx.date as date, p1 as p_from, p2 as p_to, t order by tx.date desc"
+    query = "match (p2:person)<-[:to]-(tx:transaction)<-[:from]-(p1:person), (tx)-[:includes]->(t:tag) where p2.email = $email or p1.email = $email return tx.date as date, p1 as p_from, p2 as p_to, t order by tx.date desc"
     with tms_db.session() as tx:
-        result = tx.run(query, email1=email, email2=email)
+        result = tx.run(query, email=email)
         data = [record for record in result]
         return data
     

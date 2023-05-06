@@ -11,7 +11,7 @@
                 <div class="card-body">
                     {% for tag in recently_added_tags %}
                     <a class="link-light" href="/tags/{{ tag['t']['name'] }}">
-                        <span class="badge bg-dark"> {{ tag['t']['name'] }}
+                        <span class="badge bg-tag"> {{ tag['t']['name'] }}
                         </span>
                     </a>
                     {% endfor %}
@@ -29,7 +29,7 @@
                     {% for tag in followed_tags %}
 
                     <a class="link-light" href="/tags/{{ tag.name }}">
-                        <span class="badge bg-dark"> {{ tag.name }}
+                        <span class="badge bg-tag"> {{ tag.name }}
                             <span class="badge text-bg-light">{{ tag.anz }}
                               </span>
                         </span>
@@ -49,7 +49,7 @@
                     {% for tag in worked_on_tags %}
                     
                     <a class="link-light" href="/tags/{{ tag.name }}">
-                        <span class="badge bg-dark"> {{ tag.name }} <span class="badge text-bg-light">{{ tag.anz }}
+                        <span class="badge bg-tag"> {{ tag.name }} <span class="badge text-bg-light">{{ tag.anz }}
                         </span>
                         </span>
                     </a>
@@ -68,7 +68,7 @@
                     {% for tag in common_skills %}
 
                     <a class="link-light" href="/tags/{{ tag.name }}">
-                        <span class="badge bg-dark"> {{ tag.name }} <span class="badge text-bg-light">{{ tag.anz }}
+                        <span class="badge bg-tag"> {{ tag.name }} <span class="badge text-bg-light">{{ tag.anz }}
                         </span>
                         </span>
                     </a>
@@ -86,14 +86,14 @@
         <div class="col">
             <div class="card">
                 <h6 class="card-header">
-                    Most Transactions
+                    Frequent Transactions
 
                 </h6>
                 <div class="card-body">
                     {% for tx in transaction_tag_count %}
 
                     <a class="link-light" href="/tags/{{ tx.t.name }}">
-                        <span class="badge bg-dark"> {{ tx.t.name }} <span class="badge text-bg-light">{{ tx.anz }}
+                        <span class="badge bg-tag"> {{ tx.t.name }} <span class="badge text-bg-light">{{ tx.anz }}
                               </span>
                         </span>
                     </a>
@@ -114,13 +114,13 @@
                         {% for tx in transactions %}
                         <li class="list-group-item" style="padding: 0px; padding-bottom: 2px; padding-top: 2px;">
 
-                            <span style="font-size: smaller;"><b>{{tx.date}}</b></span><a class="link-light" href="/tags/{{tx.t.name}}"> <span class="badge bg-dark">{{tx.t.name}}</span></a>
+                            <span style="font-size: smaller;"><b>{{tx.date}}</b></span><a class="link-light" href="/tags/{{tx.t.name}}"> <span class="badge bg-tag">{{tx.t.name}}</span></a>
                             <a class="link-light" href="/persons/{{tx.p_from.email}}">
-                                <span class="badge rounded-pill text-bg-light">{{tx.p_from.last_name}}, {{tx.p_from.first_name}}</span>
+                                <span class="badge rounded-pill bg-person">{{tx.p_from.last_name}}, {{tx.p_from.first_name}}</span>
                             </a>
                             <span style="font-size: smaller;">&#x2192;</span>
                             <a class="link-light" href="/persons/{{tx.p_to.email}}">
-                                <span class="badge rounded-pill text-bg-light">{{tx.p_to.last_name}}, {{tx.p_to.first_name}}</span>
+                                <span class="badge rounded-pill bg-person">{{tx.p_to.last_name}}, {{tx.p_to.first_name}}</span>
                             </a>
                         </li>
                         {% endfor %}

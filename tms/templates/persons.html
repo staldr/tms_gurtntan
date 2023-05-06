@@ -9,7 +9,7 @@
             {% for person in persons%}
 
                 <a class="link-light" href="/persons/{{person.email}}">
-                            <span class=" badge text-bg-light"> {{person.last_name}}, {{person.first_name}}
+                            <span class=" badge bg-person"> {{person.last_name}}, {{person.first_name}}
                     </span>
                 </a>
             {% endfor %}

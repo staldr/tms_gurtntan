@@ -29,7 +29,7 @@
                                     {%endif%}
                                     {% for tag in followed_tags_other%}
                                     <a class="link-light" href="/tags/{{ tag.name }}">
-                                        <span class="badge bg-dark">{{ tag.name }}</span>
+                                        <span class="badge bg-tag">{{ tag.name }}</span>
                                     </a>
                                     {% endfor %}
                                 </div>
@@ -53,7 +53,7 @@
                                     {%endif%}
                                     {% for tag in skilled_tags_other%}
                                     <a class="link-light" href="/tags/{{ tag.name }}">
-                                        <span class="badge bg-dark">{{ tag.name }}</span>
+                                        <span class="badge bg-tag">{{ tag.name }}</span>
                                     </a>
                                     {% endfor %}
                                 </div>
@@ -77,7 +77,7 @@
                                     {%endif%}
                                     {% for tag in helped_tags_other%}
                                     <a class="link-light" href="/tags/{{ tag.name }}">
-                                        <span class="badge bg-dark">{{ tag.name }}</span>
+                                        <span class="badge bg-tag">{{ tag.name }}</span>
                                     </a>
                                     {% endfor %}
                                 </div>
@@ -101,7 +101,7 @@
                                     {%endif%}
                                     {% for tag in worked_tags_other%}
                                     <a class="link-light" href="/tags/{{ tag.name }}">
-                                        <span class="badge bg-dark">{{ tag.name }}</span>
+                                        <span class="badge bg-tag">{{ tag.name }}</span>
                                     </a>
                                     {% endfor %}
                                 </div>
@@ -122,7 +122,7 @@
                 <div class="card-body">
                     {% for person in persons_following%}
                     <a class="link-light" href="/persons/{{person.p.email}}">
-                        <span class="badge rounded-pill text-bg-light">{{person.p.last_name}},
+                        <span class="badge rounded-pill bg-person">{{person.p.last_name}},
                             {{person.p.first_name}}</span>
                     </a>
                     {% endfor %}
@@ -135,7 +135,7 @@
                 <div class="card-body">
                     {% for person in persons_skilled%}
                     <a class="link-light" href="/persons/{{person.p.email}}">
-                        <span class="badge rounded-pill text-bg-light">{{person.p.last_name}},
+                        <span class="badge rounded-pill bg-person">{{person.p.last_name}},
                             {{person.p.first_name}}</span>
                     </a>
                     {% endfor %}
@@ -162,8 +162,8 @@
                 <div class="card-body">
                     {% for tx in transactions%}
                     <a class="link-light" href="/persons/{{tx.p_from.email}}">
-                        <span class="badge rounded-pill text-bg-light">{{tx.p_from.last_name}}, {{tx.p_from.first_name}}
-                            <span class="badge text-bg-dark"> {{ tx.anz }}
+                        <span class="badge rounded-pill bg-person">{{tx.p_from.last_name}}, {{tx.p_from.first_name}}
+                            <span class="badge text-bg-light"> {{ tx.anz }}
                                 <span class="visually-hidden">helped {{ tx.anz }} time{% if tx.anz > 1%}s{% endif
                                     %}</span>
                             </span>
@@ -196,13 +196,13 @@
 
                             {% for t in tags_tasks[task['elementid(t)']] %}
                             <a class="link-light" href="/tags/{{t['tag'].get('name')}}">
-                                <span class="badge bg-dark">{{t['tag'].get('name')}}</span>
+                                <span class="badge bg-tag">{{t['tag'].get('name')}}</span>
                             </a>
                             {% endfor %} <br />
                             <p style="font-size: smaller;"><i>{{ task['t'].get('title') }} - </i>{{
                                 task['t'].get('description') }}
                                 <!-- Button trigger modal -->
-                                <a href="#" data-bs-toggle="modal" data-bs-target="#{{task.get('elementid(t)')}}">
+                                <a href="#" class = "link-dark" data-bs-toggle="modal" data-bs-target="#{{task.get('elementid(t)')}}">
                                     <i>> Details</i>
                                 </a>
                                 <!-- Modal -->
@@ -226,23 +226,29 @@
                                             <p> {% for t in tags_tasks[task['elementid(t)']] %}
                                                 <a class="link-light" href="/tags/{{t['tag'].get('name')}}">
 
-                                                    <span class="badge bg-dark">{{t['tag'].get('name')}}</span>
+                                                    <span class="badge bg-tag">{{t['tag'].get('name')}}</span>
                                                 </a>
                                                 {% endfor %}
                                                 <br />
                                             </p>
-                                            <p><b>Persons:</b> {% for p in shared_tasks[task['elementid(t)']] %}
-                                                <a class="nav-link"
-                                                    href="/persons/{{p['p'].get('email')}}">{{p['p'].get('first_name')}}
-                                                    {{p['p'].get('last_name')}}
-                                                </a>
-                                                {% endfor %}
-                                            </p>
+                                            <div class="card">
+                                                <h6 class="card-header">Other persons working on this task:</h6>
+                                                <div class="card-body">
+                                                    {% for p in shared_tasks[task['elementid(t)']] %}
+                                                    <a class="link-light" href="/persons/{{p['p'].get('email')}}">
+                                                        <span
+                                                            class="badge rounded-pill bg-person">{{p['p'].get('last_name')}},
+                                                            {{p['p'].get('first_name')}}</span>
+                                                    </a>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+           
 
 
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-dark"
+                                            <button type="button" class="btn btn-light"
                                                 data-bs-dismiss="modal">Close</button>
                                         </div>
                                     </div>

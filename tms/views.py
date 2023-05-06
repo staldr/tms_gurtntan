@@ -30,11 +30,11 @@ def register():
 
         response = user.register(user)
         if response == False:
-            flash("E-Mail already exists.")
+            flash("Email address already exists.")
             return render_template("register.html")
         else:
             flash("Successfully registrated. Please log in.")
-            return render_template("login.html")
+            return redirect(url_for("login"))
         
     elif request.method == "GET":
         return render_template("register.html")
@@ -46,7 +46,7 @@ def login():
         password = request.form["password"].encode('utf-8')
                                                     
         with tms_db.session() as tx:
-            result = tx.run("MATCH (u:user) where u.email = $email return u.password, u.email", email=email)
+            result = tx.run("MATCH (u:user) where u.email = $email return u.password", email=email)
             record = result.single()
             if record:
                 if bcrypt.checkpw(password, record['u.password']):
@@ -138,7 +138,7 @@ def explore():
     transaction_tag_count = get_transaction_tag_count()
     return render_template("explore.html", transaction_tag_count=transaction_tag_count, recently_added_tags=recently_added_tags, transactions=transactions, followed_tags=followed_tags,worked_on_tags=worked_on_tags,common_skills=common_skills)
 
-@app.route("/add_tag", methods=["POST","GET"])
+@app.route("/add_tag", methods=["POST"])
 def add_tag():
     email = session['user']
     tag = request.form["tag"].lower()
@@ -192,6 +192,7 @@ def remove_skill():
 @app.route("/add_skill", methods=["POST"])
 def add_skill():
     email = session['user']
+    #tag = request.form["tag"].lower()
     tag = request.form["tag"].lower()
     desc = request.form["desc"]
     query = '''
@@ -201,15 +202,12 @@ def add_skill():
         ON CREATE SET s.created = datetime(), s.last_modified = datetime()
         with s,t
         MATCH (p:person) WHERE p.email = $email
-        MERGE (p)-[r:has]->(s)-[r2:includes]->(t)
+        MERGE (p)-[:has]->(s)-[:includes]->(t)
         ON CREATE SET r.created = datetime()
     '''
     if request.method == "POST":
         with tms_db.session() as tx:
-            try:        
-                tx.run(query, tag=tag, desc=desc, email=email)
-            except:
-                return abort(500) # TODO: Exception Handling ausbauen
+            tx.run(query, tag=tag, desc=desc, email=email)
         return redirect(request.referrer)
     
 @app.route("/add_task", methods=["POST"])
@@ -220,38 +218,35 @@ def add_task():
     start_date = request.form["start_date"]
     end_date = request.form["end_date"]
     tags_string = request.form["tag"].lower()
-    tags = set(tags_string.split(";")) # removing duplicates
+    tags = set(tags_string.split(";")) 
     collaborators = request.form.getlist("collaborators")
 
+    query = '''
+        CREATE (t:task {created: datetime(), last_modified: datetime(), description: $desc, title: $title, start_date: $start_date, end_date: $end_date}) WITH t
+        MATCH (p:person) WHERE p.email = $email
+        CREATE (p)-[:works_on]->(t)
+        RETURN elementid(t) as elementid
+    '''
+    query2 = '''
+        MATCH (t:task), (p:person) WHERE elementid(t) = $elementid and p.email = $collaborator
+        CREATE (p)-[:works_on]->(t) 
+    '''
+    query3 = '''
+        merge (tag:tag {name: $tag})
+        ON CREATE SET tag.created = datetime(), tag.last_modified = datetime()
+        with tag
+        MATCH (t:task) WHERE elementid(t) = $elementid
+        CREATE (t)-[:includes]->(tag)
+    '''
+    with tms_db.session() as tx:
+        result = tx.run(query, desc=desc, title=title, start_date=start_date, end_date=end_date, email=email)
+        elementid = result.single()["elementid"]
+        for collaborator in  collaborators:
+            tx.run(query2, collaborator=collaborator, elementid=elementid)
+        for tag in tags:
+            tx.run(query3, tag=tag, elementid=elementid)
 
-    if request.method == "POST":
-
-        query = '''
-            CREATE (t:task {created: datetime(), last_modified: datetime(), description: $desc, title: $title, start_date: $start_date, end_date: $end_date}) WITH t
-            MATCH (p:person) WHERE p.email = $email
-            CREATE (p)-[:works_on]->(t)
-            RETURN elementid(t) as elementid
-        '''
-        query2 = '''
-            MATCH (t:task), (p:person) WHERE elementid(t) = $elementid and p.email = $collaborator
-            CREATE (p)-[:works_on]->(t) 
-        '''
-        query3 = '''
-            merge (tag:tag {name: $tag})
-            ON CREATE SET tag.created = datetime(), tag.last_modified = datetime()
-            with tag
-            MATCH (t:task) WHERE elementid(t) = $elementid
-            CREATE (t)-[:includes]->(tag)
-        '''
-        with tms_db.session() as tx:
-            result = tx.run(query, desc=desc, title=title, start_date=start_date, end_date=end_date, email=email)
-            elementid = result.single()["elementid"]
-            for collaborator in  collaborators:
-                tx.run(query2, collaborator=collaborator, elementid=elementid)
-            for tag in tags:
-                tx.run(query3, tag=tag, elementid=elementid)
-
-        return redirect(request.referrer)
+    return redirect(request.referrer)
     
 @app.route("/add_transaction", methods=["POST"])
 def add_transaction():
@@ -296,13 +291,12 @@ def endorse_skill():
         merge (p)-[r:endorses]->(s)
         ON CREATE SET r.created = datetime()
     '''
-    if request.method == "POST":
-        with tms_db.session() as tx:
-            try:        
-                tx.run(query, elementid=elementid, email=email)
-            except:
-                return abort(500) # TODO: Exception Handling ausbauen
-        return redirect(request.referrer)
+    with tms_db.session() as tx:
+        try:        
+            tx.run(query, elementid=elementid, email=email)
+        except:
+            return abort(500) # TODO: Exception Handling ausbauen
+    return redirect(request.referrer)
 
 @app.route('/search')
 def search():
