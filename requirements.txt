@@ -1,110 +1,12 @@
-apispec==5.2.2
-asttokens @ file:///home/conda/feedstock_root/build_artifacts/asttokens_1670263926556/work
-attrs==22.2.0
-Babel==2.12.1
-backcall @ file:///home/conda/feedstock_root/build_artifacts/backcall_1592338393461/work
-backports.functools-lru-cache @ file:///home/conda/feedstock_root/build_artifacts/backports.functools_lru_cache_1618230623929/work
 bcrypt==4.0.1
-blis==0.7.9
-cachelib==0.10.2
-catalogue==2.0.8
-certifi==2022.12.7
-charset-normalizer==3.1.0
+blinker==1.6.2
 click==8.1.3
-colorama @ file:///home/conda/feedstock_root/build_artifacts/colorama_1666700638685/work
-confection==0.0.4
-cymem==2.0.7
-debugpy @ file:///C:/ci_310/debugpy_1642079916595/work
-decorator @ file:///home/conda/feedstock_root/build_artifacts/decorator_1641555617451/work
-Deprecated==1.2.13
-dnspython==2.3.0
-email-validator==1.3.1
-en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.5.0/en_core_web_sm-3.5.0-py3-none-any.whl
-executing @ file:///home/conda/feedstock_root/build_artifacts/executing_1667317341051/work
-Flask==2.2.3
-Flask-AppBuilder==4.3.1
-Flask-Babel==2.0.0
-Flask-JWT-Extended==4.4.4
-Flask-Limiter==3.3.0
-Flask-Login==0.6.2
-Flask-Session==0.4.0
-Flask-SQLAlchemy==2.5.1
-Flask-WTF==1.1.1
-greenlet==2.0.2
-idna==3.4
-importlib-metadata @ file:///home/conda/feedstock_root/build_artifacts/importlib-metadata_1672612343532/work
-importlib-resources==5.12.0
-interchange==2021.0.4
-ipykernel @ file:///D:/bld/ipykernel_1655369313836/work
-ipython @ file:///D:/bld/ipython_1677617262387/work
+colorama==0.4.6
+Flask==2.3.2
 itsdangerous==2.1.2
-jedi @ file:///home/conda/feedstock_root/build_artifacts/jedi_1669134318875/work
 Jinja2==3.1.2
-jsonschema==4.17.3
-jupyter_client @ file:///home/conda/feedstock_root/build_artifacts/jupyter_client_1676579893731/work
-jupyter_core @ file:///D:/bld/jupyter_core_1675110116927/work
-langcodes==3.3.0
-limits==3.3.1
-markdown-it-py==2.2.0
 MarkupSafe==2.1.2
-marshmallow==3.19.0
-marshmallow-enum==1.5.1
-marshmallow-sqlalchemy==0.26.1
-matplotlib-inline @ file:///home/conda/feedstock_root/build_artifacts/matplotlib-inline_1660814786464/work
-mdurl==0.1.2
-monotonic==1.6
-murmurhash==1.0.9
-neo4j==5.6.0
-nest-asyncio @ file:///home/conda/feedstock_root/build_artifacts/nest-asyncio_1664684991461/work
-numpy==1.24.2
-ordered-set==4.1.0
-packaging @ file:///home/conda/feedstock_root/build_artifacts/packaging_1673482170163/work
-pandas==2.0.0
-pansi==2020.7.3
-parso @ file:///home/conda/feedstock_root/build_artifacts/parso_1638334955874/work
-passlib==1.7.4
-pathy==0.10.1
-pickleshare @ file:///home/conda/feedstock_root/build_artifacts/pickleshare_1602536217715/work
-platformdirs @ file:///home/conda/feedstock_root/build_artifacts/platformdirs_1678652433955/work
-preshed==3.0.8
-prison==0.2.1
-prompt-toolkit @ file:///home/conda/feedstock_root/build_artifacts/prompt-toolkit_1677600924538/work
-psutil @ file:///C:/Windows/Temp/abs_b2c2fd7f-9fd5-4756-95ea-8aed74d0039flsd9qufz/croots/recipe/psutil_1656431277748/work
-pure-eval @ file:///home/conda/feedstock_root/build_artifacts/pure_eval_1642875951954/work
-py2neo==2021.2.3
-pydantic==1.10.7
-Pygments @ file:///home/conda/feedstock_root/build_artifacts/pygments_1672682006896/work
-PyJWT==2.6.0
-pyrsistent==0.19.3
-python-dateutil @ file:///home/conda/feedstock_root/build_artifacts/python-dateutil_1626286286081/work
+neo4j==5.8.0
 python-dotenv==1.0.0
-pytz==2022.7.1
-pywin32==305.1
-PyYAML==6.0
-pyzmq @ file:///C:/ci/pyzmq_1657616000714/work
-requests==2.28.2
-rich==13.3.3
-six @ file:///home/conda/feedstock_root/build_artifacts/six_1620240208055/work
-smart-open==6.3.0
-spacy==3.5.2
-spacy-legacy==3.0.12
-spacy-loggers==1.0.4
-SQLAlchemy==1.4.47
-SQLAlchemy-Utils==0.40.0
-srsly==2.4.6
-stack-data @ file:///home/conda/feedstock_root/build_artifacts/stack_data_1669632077133/work
-thinc==8.1.9
-tornado @ file:///D:/bld/tornado_1656937966227/work
-tqdm==4.65.0
-traitlets @ file:///home/conda/feedstock_root/build_artifacts/traitlets_1675110562325/work
-typer==0.7.0
-typing_extensions @ file:///home/conda/feedstock_root/build_artifacts/typing_extensions_1678559861143/work
-tzdata==2023.3
-urllib3==1.26.15
-wasabi==1.1.1
-wcwidth @ file:///home/conda/feedstock_root/build_artifacts/wcwidth_1673864653149/work
-Werkzeug==2.2.3
-wincertstore==0.2
-wrapt==1.15.0
-WTForms==3.0.1
-zipp @ file:///home/conda/feedstock_root/build_artifacts/zipp_1677313463193/work
+pytz==2023.3
+Werkzeug==2.3.4

@@ -2,124 +2,155 @@
 {% block title %}{{ tag.name }}{% endblock %}
 {% block content %}
 
+<!-- Title incl. Action Buttons -->
 <div class="container text-left">
-    <h2 style="padding-bottom: 15px; padding-top: 20px;">{{ tag.name }}</h2>
     <div class="row align-items-start">
         <div class="col">
-            <div class="card">
-                <h6 class="card-header">Related Tags
-                </h6>
-                <div class="card-body">
-                    <div class="accordion accordion-flush" id="accordionFlushExample">
-                        <div class="accordion-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#flush-collapseOne" aria-expanded="false"
-                                    aria-controls="flush-collapseOne">
-                                    People following {{tag.name}} are also following ...
-                                </button>
-                            </h2>
-                            <div id="flush-collapseOne" class="accordion-collapse collapse"
-                                data-bs-parent="#accordionFlushExample">
-                                <div class="accordion-body">
-                                    {% if not followed_tags_other%}
-                                    <p style="font-size: smaller; font-style: italic;">
-                                        No related tags found :-&#40;
-                                    </p>
-                                    {%endif%}
-                                    {% for tag in followed_tags_other%}
-                                    <a class="link-light" href="/tags/{{ tag.name }}">
-                                        <span class="badge bg-tag">{{ tag.name }}</span>
-                                    </a>
-                                    {% endfor %}
-                                </div>
-                            </div>
+            <h2 style="padding-bottom: 15px; padding-top: 20px;"><span class="badge bg-tag">{{ tag.name }}</span></h2>
+        </div>
+    </div>
+    <div class="row align-items-start">
+        <div class="col">
+            {% if session['user'] and not follows %}
+
+            <form method="POST" action="{{ url_for('add_tag', rel_type='follows') }}">
+                <input type="hidden" name="tag" value="{{ tag.name }} " id="followed_tags">
+                <button class="btn btn-sm btn-dark" type="submit" method="POST"
+                    action="{{ url_for('add_tag', rel_type='follows') }}">Follow</button>
+            </form>
+
+            {% endif %}
+
+            {% if session['user'] and follows %}
+
+            <form method="POST" action="{{ url_for('remove_tag', rel_type='follows') }}">
+                <input type="hidden" name="tag" value="{{ tag.name }} ">
+                <button class="btn btn-sm btn-dark" type="submit" method="POST"
+                    action="{{ url_for('add_tag', rel_type='follows') }}">Unfollow</button>
+            </form>
+
+            {% endif %}
+        </div>
+        <div class="col">
+            {% if session['user'] and not skilled %}
+            <!-- Button trigger modal -->
+            <a href="#" class="link-dark" data-bs-toggle="modal" data-bs-target="#addskill">
+                <button class="btn btn-sm btn-dark">Add Skill</button>
+            </a>
+            <!-- Modal -->
+            <div class="modal fade" id="addskill" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Add {{ tag.name }} as skill</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="accordion-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#flush-collapseTwo" aria-expanded="false"
-                                    aria-controls="flush-collapseTwo">
-                                    People skilled in {{tag.name}} are also skilled in ...
-                                </button>
-                            </h2>
-                            <div id="flush-collapseTwo" class="accordion-collapse collapse"
-                                data-bs-parent="#accordionFlushExample">
-                                <div class="accordion-body">
-                                    {% if not skilled_tags_other%}
-                                    <p style="font-size: smaller; font-style: italic;">
-                                        No related tags found :-&#40;
-                                    </p>
-                                    {%endif%}
-                                    {% for tag in skilled_tags_other%}
-                                    <a class="link-light" href="/tags/{{ tag.name }}">
-                                        <span class="badge bg-tag">{{ tag.name }}</span>
-                                    </a>
-                                    {% endfor %}
+                        <div class="modal-body">
+                            <form method="POST" action="{{ url_for('add_skill') }}">
+                                <div class="mb-3">
+                                    <input type="hidden" class="form-control" id="tag" name="tag"
+                                        value="{{ tag.name }}">
+                                    <textarea class="form-control" id="desc" rows="3" name="desc"
+                                        placeholder="Describe your skill"></textarea>
                                 </div>
-                            </div>
+                                <button type="submit" class="btn btn-dark mb-3">Add Skill</button>
+                            </form>
+
                         </div>
-                        <div class="accordion-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#flush-collapseThree" aria-expanded="false"
-                                    aria-controls="flush-collapseThree">
-                                    People transferring knowledge about {{tag.name}} are transferring knowledge about ...
-                                </button>
-                            </h2>
-                            <div id="flush-collapseThree" class="accordion-collapse collapse"
-                                data-bs-parent="#accordionFlushExample">
-                                <div class="accordion-body">
-                                    {% if not helped_tags_other%}
-                                    <p style="font-size: smaller; font-style: italic;">
-                                        No related tags found :-&#40; 
-                                    </p>
-                                    {%endif%}
-                                    {% for tag in helped_tags_other%}
-                                    <a class="link-light" href="/tags/{{ tag.name }}">
-                                        <span class="badge bg-tag">{{ tag.name }}</span>
-                                    </a>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="accordion-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#flush-collapseFour" aria-expanded="false"
-                                    aria-controls="flush-collapseFour">
-                                    People working on {{tag.name}} are also working on ...
-                                </button>
-                            </h2>
-                            <div id="flush-collapseFour" class="accordion-collapse collapse"
-                                data-bs-parent="#accordionFlushExample">
-                                <div class="accordion-body">
-                                    {% if not worked_tags_other%}
-                                    <p style="font-size: smaller; font-style: italic;">
-                                        No related tags found :-&#40;
-                                    </p>
-                                    {%endif%}
-                                    {% for tag in worked_tags_other%}
-                                    <a class="link-light" href="/tags/{{ tag.name }}">
-                                        <span class="badge bg-tag">{{ tag.name }}</span>
-                                    </a>
-                                    {% endfor %}
-                                </div>
-                            </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>
             </div>
+            <!--End of modal-->
+
+            {% endif %}
+            {% if session['user'] and skilled %}
+
+            <form method="POST" action="{{ url_for('remove_tag', rel_type='has') }}">
+                <input type="hidden" name="tag" value="{{ tag.name }} ">
+                <button class="btn btn-sm btn-dark" type="submit" method="POST"
+                    action="{{ url_for('remove_tag', rel_type='has') }}">Remove Skill</button>
+            </form>
+
+            {% endif %}
         </div>
+        <div class="col">
+            {% if session['user'] %}
+            <!-- Button trigger modal -->
+            <a href="#" class="link-dark" data-bs-toggle="modal" data-bs-target="#addtransaction">
+                <form method="POST" action="{{ url_for('remove_tag', rel_type='has') }}">
+                    <input type="hidden" name="tag" value="{{ tag.name }} ">
+                    <button class="btn btn-sm btn-dark" type="submit" method="POST"
+                        action="{{ url_for('remove_tag', rel_type='has') }}">Transfer knowledge</button>
+                </form>
+            </a>
+            <!-- Modal -->
+            <div class="modal fade" id="addtransaction" tabindex="-1" aria-labelledby="exampleModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Transfer knowledge</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form method="POST" action="{{ url_for('add_transaction') }}">
+                                <div class="mb-3">
+                                    <input type="hidden" class="form-control" id="from" name="from"
+                                        value="{{ session['user'] }}">
+
+                                    <label for="to" class="form-label">To</label>
+                                    <select name="to" id="to" class="form-select" aria-label="Default select example"
+                                        required="required">
+                                        <option value="" selected>-- select --</option>
+
+                                        {% for person in all_persons%}
+                                        <option value="{{person.email}}">{{person.last_name}},
+                                            {{person.first_name}} </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <input type="hidden" class="form-control" id="tag" name="tag"
+                                        value="{{ tag.name }}">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="date" class="form-label">Date</label>
+                                    <input type="date" class="form-control" id="date" name="date" required="required">
+                                </div>
+
+                                <button type="submit" class="btn btn-light mb-3">Add</button>
+
+                            </form>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--End of modal-->
+            {% endif %}
+        </div>
+
     </div>
 </div>
 
+<!-- Followers, Skilled People, Knowledge transfers-->
 <div class="container text-left" style="padding-top: 15px;">
     <div class="row align-items-start">
         <div class="col">
             <div class="card">
-                <h6 class="card-header">Who follows {{ tag.name }}?</h6>
+                <h6 class="card-header">Followers</h6>
                 <div class="card-body">
+                    {% if not persons_following%}
+                    <p style="font-size: smaller; font-style: italic;">
+                        No followers found.
+                    </p>
+                    {%endif%}
                     {% for person in persons_following%}
                     <a class="link-light" href="/persons/{{person.p.email}}">
                         <span class="badge rounded-pill bg-person">{{person.p.last_name}},
@@ -131,8 +162,13 @@
         </div>
         <div class="col">
             <div class="card">
-                <h6 class="card-header">Who is skilled in {{ tag.name }}?</h6>
+                <h6 class="card-header">Skilled People</h6>
                 <div class="card-body">
+                    {% if not persons_skilled%}
+                    <p style="font-size: smaller; font-style: italic;">
+                        No skilled persons found.
+                    </p>
+                    {%endif%}
                     {% for person in persons_skilled%}
                     <a class="link-light" href="/persons/{{person.p.email}}">
                         <span class="badge rounded-pill bg-person">{{person.p.last_name}},
@@ -158,12 +194,17 @@
     -->
         <div class="col">
             <div class="card">
-                <h6 class="card-header">Who transfers knowledge about {{ tag.name }}?</h6>
+                <h6 class="card-header">Knowledge Transfers</h6>
                 <div class="card-body">
+                    {% if not transactions%}
+                    <p style="font-size: smaller; font-style: italic;">
+                        No knowledge was transferred yet.
+                    </p>
+                    {%endif%}
                     {% for tx in transactions%}
                     <a class="link-light" href="/persons/{{tx.p_from.email}}">
                         <span class="badge rounded-pill bg-person">{{tx.p_from.last_name}}, {{tx.p_from.first_name}}
-                            <span class="badge text-bg-light"> {{ tx.anz }}
+                            <span class="badge text-bg-dark"> {{ tx.anz }}
                                 <span class="visually-hidden">helped {{ tx.anz }} time{% if tx.anz > 1%}s{% endif
                                     %}</span>
                             </span>
@@ -176,16 +217,108 @@
     </div>
 </div>
 
-
+<!-- People are also ... -->
 <div class="container text-left" style="padding-top: 15px;">
-    <h2> </h2>
+    <div class="row align-items-start">
+        <div class="col">
+            <div class="accordion" id="accordionFlushExample">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+                            People are also following:
+                        </button>
+                    </h2>
+                    <div id="flush-collapseOne" class="accordion-collapse collapse"
+                        data-bs-parent="#accordionFlushExample">
+                        <div class="accordion-body">
+                            {% if not followed_tags_other%}
+                            <p style="font-size: smaller; font-style: italic;">
+                                No related tags found :-&#40;
+                            </p>
+                            {%endif%}
+                            {% for tag in followed_tags_other%}
+                            <a class="link-light" href="/tags/{{ tag.name }}">
+                                <span class="badge bg-follow">{{ tag.name }}</span>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="accordion" id="accordionFlushExample">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
+                            People are also skilled in:
+                        </button>
+                    </h2>
+                    <div id="flush-collapseTwo" class="accordion-collapse collapse"
+                        data-bs-parent="#accordionFlushExample">
+                        <div class="accordion-body">
+                            {% if not skilled_tags_other%}
+                            <p style="font-size: smaller; font-style: italic;">
+                                No related skills found :-&#40;
+                            </p>
+                            {%endif%}
+                            {% for tag in skilled_tags_other%}
+                            <a class="link-light" href="/tags/{{ tag.name }}">
+                                <span class="badge bg-skill">{{ tag.name }}</span>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="accordion" id="accordionFlushExample">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#flush-collapseThree" aria-expanded="false"
+                            aria-controls="flush-collapseThree">
+                            People are also transferring knowledge about:
+                        </button>
+                    </h2>
+                    <div id="flush-collapseThree" class="accordion-collapse collapse"
+                        data-bs-parent="#accordionFlushExample">
+                        <div class="accordion-body">
+                            {% if not helped_tags_other%}
+                            <p style="font-size: smaller; font-style: italic;">
+                                No related tags found :-&#40;
+                            </p>
+                            {%endif%}
+                            {% for tag in helped_tags_other%}
+                            <a class="link-light" href="/tags/{{ tag.name }}">
+                                <span class="badge bg-transfer">{{ tag.name }}</span>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tasks -->
+<div class="container text-left" style="padding-top: 15px;">
     <div class="row align-items-start">
         <div class="col">
             <div class="card">
-                <h6 class="card-header">What task include {{ tag.name }}?
+                <h6 class="card-header">Tasks
                 </h6>
                 <div class="card-body">
                     <ul class="list-group list-group-flush">
+                        {% if not tasks %}
+                        <p style="font-size: smaller; font-style: italic;">
+                            No tasks found.
+                        </p>
+                        {% endif %}
                         {% for task in tasks%}
                         <li class="list-group-item" style="padding: 0px; padding-bottom: 2px; padding-top: 2px;">
                             <b>{{ task.t.start_date }} -
@@ -196,13 +329,14 @@
 
                             {% for t in tags_tasks[task['elementid(t)']] %}
                             <a class="link-light" href="/tags/{{t['tag'].get('name')}}">
-                                <span class="badge bg-tag">{{t['tag'].get('name')}}</span>
+                                <span class="badge bg-task">{{t['tag'].get('name')}}</span>
                             </a>
                             {% endfor %} <br />
                             <p style="font-size: smaller;"><i>{{ task['t'].get('title') }} - </i>{{
                                 task['t'].get('description') }}
                                 <!-- Button trigger modal -->
-                                <a href="#" class = "link-dark" data-bs-toggle="modal" data-bs-target="#{{task.get('elementid(t)')}}">
+                                <a href="#" class="link-dark" data-bs-toggle="modal"
+                                    data-bs-target="#{{task.get('elementid(t)')}}">
                                     <i>> Details</i>
                                 </a>
                                 <!-- Modal -->
@@ -211,7 +345,7 @@
                                 <div class="modal-dialog">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h1 class="modal-title fs-5" id="exampleModalLabel">Task Details: {{
+                                            <h1 class="modal-title fs-5" id="exampleModalLabel">{{
                                                 task['t'].get('title') }}</h1>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal"
                                                 aria-label="Close"></button>
@@ -226,13 +360,13 @@
                                             <p> {% for t in tags_tasks[task['elementid(t)']] %}
                                                 <a class="link-light" href="/tags/{{t['tag'].get('name')}}">
 
-                                                    <span class="badge bg-tag">{{t['tag'].get('name')}}</span>
+                                                    <span class="badge bg-task">{{t['tag'].get('name')}}</span>
                                                 </a>
                                                 {% endfor %}
                                                 <br />
                                             </p>
                                             <div class="card">
-                                                <h6 class="card-header">Other persons working on this task:</h6>
+                                                <h6 class="card-header">People working on this task:</h6>
                                                 <div class="card-body">
                                                     {% for p in shared_tasks[task['elementid(t)']] %}
                                                     <a class="link-light" href="/persons/{{p['p'].get('email')}}">
@@ -243,7 +377,7 @@
                                                     {% endfor %}
                                                 </div>
                                             </div>
-           
+
 
 
                                         </div>
@@ -263,10 +397,77 @@
 
             </div>
         </div>
-
     </div>
 </div>
 
+<!-- People are also working on-->
+<div class="container text-left" style="padding-top: 15px;">
+    <div class="row align-items-start">
+        <div class="col">
+            <div class="accordion" id="accordionFlushExample">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#flush-collapseFour" aria-expanded="false"
+                            aria-controls="flush-collapseFour">
+                            People are also working on:
+                        </button>
+                    </h2>
+                    <div id="flush-collapseFour" class="accordion-collapse collapse"
+                        data-bs-parent="#accordionFlushExample">
+                        <div class="accordion-body">
+                            {% if not worked_tags_other%}
+                            <p style="font-size: smaller; font-style: italic;">
+                                No related tasks found :-&#40;
+                            </p>
+                            {%endif%}
+                            {% for tag in worked_tags_other%}
+                            <a class="link-light" href="/tags/{{ tag.name }}">
+                                <span class="badge bg-task">{{ tag.name }}</span>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
 
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Related Tags -->
+<div class="container text-left" style="padding-top: 15px;">
+    <div class="row align-items-start">
+        <div class="col">
+            <div class="accordion" id="accordionFlushExample">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#flush-collapseFive" aria-expanded="false"
+                            aria-controls="flush-collapseFive">
+                            Related Tags
+                        </button>
+                    </h2>
+                    <div id="flush-collapseFive" class="accordion-collapse collapse"
+                        data-bs-parent="#accordionFlushExample">
+                        <div class="accordion-body">
+                            {% if not related_tags %}
+                            <p style="font-size: smaller; font-style: italic;">
+                                No related tags found :-&#40;
+                            </p>
+                            {%endif%}
+                            {% for tag in related_tags%}
+                            <a class="link-light" href="/tags/{{ tag.t.name }}">
+                                <span class="badge bg-tag">{{ tag.t.name }}</span>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
 
 {% endblock %}

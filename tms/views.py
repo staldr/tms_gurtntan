@@ -1,8 +1,11 @@
+import csv
 import bcrypt
 from flask import Flask, jsonify, redirect, render_template, request, flash, session, url_for
 from .models import *
+import json
+from werkzeug.utils import secure_filename
 app = Flask(__name__)
-app.secret_key = 'your_secret_key_here'
+app.secret_key = 'b7798833c2ffc6508de300553c40db2318b08d5b8f17ca08fafd5a8ede6e3dd6'
 salt = bcrypt.gensalt()
 
 
@@ -12,7 +15,13 @@ def index():
 
 @app.route("/admin")
 def admin():
-    return merge()
+    if session['admin']:
+        check_tags = get_similar_tags()
+        all_tags = get_tags()
+        return render_template("admin.html", check_tags=check_tags, all_tags=all_tags)
+    else:
+        abort(403)
+
 
 
 @app.route("/register", methods=["POST","GET"])
@@ -45,11 +54,15 @@ def login():
         password = request.form["password"].encode('utf-8')
                                                     
         with tms_db.session() as tx:
-            result = tx.run("MATCH (u:user) where u.email = $email return u.password", email=email)
+            result = tx.run("MATCH (u:user) where u.email = $email return u.password, u.is_admin", email=email)
             record = result.single()
             if record:
                 if bcrypt.checkpw(password, record['u.password']):
                     session['user'] = email
+                    if record['u.is_admin'] == True:
+                        session['admin'] = True
+                    else:
+                        session['admin'] = False
                     return redirect(url_for("person", email=session['user']))
                 else:
                     flash("Invalid password.")
@@ -64,10 +77,15 @@ def login():
         
         return render_template("login.html")
 
-@app.route("/persons/")
-def persons():
-    persons = get_persons()
-    return render_template("persons.html", persons=persons)
+@app.route("/people", methods=["GET", "POST"])
+def people():
+    search = request.form.get('search', '')
+    if search:
+        persons = find_persons_by_search(search.lower().strip())
+    else:
+        persons = get_persons()
+
+    return render_template("persons.html", persons=persons, search=search)
 
 @app.route("/persons/<email>")
 def person(email):
@@ -86,6 +104,7 @@ def person(email):
     skills = find_skills_by_email(email)
     transactions = find_transaction_by_email(email)
     all_persons = get_persons()
+    all_tags = get_tags()
     
     shared_skills = dict()
     count_skills = dict()
@@ -109,21 +128,12 @@ def person(email):
         tags_tasks[elementid] = tags_s
 
     #return persons
-    return render_template("person.html", endorsed_skill=endorsed_skill,all_persons=all_persons,transactions=transactions, person=person, tags=tags, tasks=tasks,skills=skills, shared_skills=shared_skills,shared_tasks=shared_tasks,tags_tasks=tags_tasks, is_user=is_user, count_skills=count_skills)
-
-'''
-@app.route("/user/shared-skills/<tag>")  
-def shared_skills(tag):
-    tag = tag
-    email = "anneliese.braun@gmail.com"
-    persons = find_person_with_shared_skills_by_email(tag,email)
-    return render_template("shared-skills.html", persons=persons, tag=tag)
-'''
-
+    return render_template("person.html", all_tags=all_tags, endorsed_skill=endorsed_skill,all_persons=all_persons,transactions=transactions, person=person, tags=tags, tasks=tasks,skills=skills, shared_skills=shared_skills,shared_tasks=shared_tasks,tags_tasks=tags_tasks, is_user=is_user, count_skills=count_skills)
 
 @app.route("/logout")
 def logout():
     session.pop("user", None)
+    session.pop("admin", None)
     return redirect(url_for("login"))
 
 @app.route("/explore")
@@ -140,8 +150,52 @@ def explore():
 @app.route("/add_tag", methods=["POST"])
 def add_tag():
     email = session['user']
-    tag = request.form["tag"].lower()
     rel_type = request.args.get('rel_type')
+    
+    if rel_type == "follows_multiple":
+        tags = request.form.getlist("tags")
+        tags.append(request.form.get("singletag"))
+        rel_type = "follows"
+    elif rel_type == "create_single":
+        tag = request.form.get("singletag")
+        result = create_tag(tag)
+        if result == True:
+            flash("Tag successfully created.")
+            return redirect(request.referrer)
+        else:
+            flash("Tag already exists.")
+            return redirect(request.referrer)
+    elif rel_type == "create_multiple":
+        tags = []
+        file = request.files['file']
+        if file and file.filename.endswith('.txt'):
+            filename = secure_filename(file.filename)
+            file.save(filename)
+
+            with open(filename, 'r') as f:
+                reader = csv.reader(f)
+                for row in reader:
+                    for elem in row:
+                        tags.append(elem)
+            
+            total = len(tags)
+            counter = 0
+            for tag in tags:
+                result = create_tag(tag)
+                if result == True:
+                    counter += 1           
+
+            msg = str(counter) + "/" + str(total) + " Tag(s) successfully created. " + str(total-counter) + " Tag(s) already existed."
+            flash(msg)
+            return redirect(request.referrer)
+
+
+
+
+    else:
+        tags = []
+        tags.append(request.form["tag"].lower().strip())
+
     query = '''merge (t:tag {{name: $tag}})
                                     ON CREATE SET t.created = datetime(), t.last_modified = datetime()
                                     with t
@@ -152,27 +206,40 @@ def add_tag():
     if request.method == "POST":
         with tms_db.session() as tx:
             try:
-                tx.run(query, tag=tag, email=email)
+                for tag in tags:
+                    tx.run(query, tag=tag, email=email)
             except:
                 return abort(500) # TODO: Exception Handling ausbauen
             return redirect(request.referrer)
         
 @app.route("/remove_tag", methods=["POST"])
 def remove_tag():
-    email = session['user']
-    checked_values = []
     rel_type = request.args.get('rel_type')
-    query = "match (t:tag)<-[r:{}]-(p:person) where t.name = $tag and p.email = $email delete r".format(rel_type)
-    for key in request.form:
-        if key.startswith('checkbox_') and request.form.get(key) == 'on':
-            checked_values.append(key.replace('checkbox_', ''))
+    email = session['user']
+    if rel_type == "follows":
+        checked_values = []
+       
+        for key in request.form:
+            if key.startswith('checkbox_') and request.form.get(key) == 'on':
+                checked_values.append(key.replace('checkbox_', ''))
+        if not checked_values:
+            checked_values.append(request.form["tag"].lower().strip())
+    else:
+        tag = request.form["tag"].lower().strip()
+
+        
     if request.method == "POST":
         with tms_db.session() as tx:
-            for tag in checked_values:
-                try:        
-                    tx.run(query, tag=tag, email=email)
-                except:
-                    return abort(500) # TODO: Exception Handling ausbauen
+            if rel_type == "follows":
+                query = "match (t:tag)<-[r:{}]-(p:person) where t.name = $tag and p.email = $email delete r".format(rel_type)
+                for tag in checked_values:
+                    try:        
+                        tx.run(query, tag=tag, email=email)
+                    except:
+                        return abort(500) # TODO: Exception Handling ausbauen
+            elif rel_type == "has":
+                query = "match (t:tag)<-[r1:includes]-(s:skill)<-[r2:has]-(p:person) where t.name = $tag and p.email = $email delete r1, r2, s"
+                tx.run(query, tag=tag, email=email)
             return redirect(request.referrer)
         
 @app.route("/remove_skill", methods=["POST"])
@@ -215,9 +282,12 @@ def add_task():
     title = request.form["title"]
     start_date = request.form["start_date"]
     end_date = request.form["end_date"]
+    '''
     tags_string = request.form["tag"].lower()
     tags = set(tags_string.split(";")) 
+    '''
     collaborators = request.form.getlist("collaborators")
+    tags = request.form.getlist("tags")
 
     query = '''
         CREATE (t:task {created: datetime(), last_modified: datetime(), description: $desc, title: $title, start_date: $start_date, end_date: $end_date}) WITH t
@@ -251,7 +321,7 @@ def add_transaction():
     email = session['user'] 
     p_from = request.form["from"]
     p_to = request.form["to"]
-    tag = request.form["tag"].lower()
+    tag = request.form["tag"].lower().strip()
     date = request.form["date"]
     if str(email) != str(p_from) and str(email) != str(p_to):
         flash("You have to be part of the transaction.")
@@ -296,44 +366,78 @@ def endorse_skill():
             return abort(500) # TODO: Exception Handling ausbauen
     return redirect(request.referrer)
 
-@app.route('/search')
-def search():
-    input = request.args.get('q')
-    results = find_persons_by_input(input)
-    return results
-
-@app.route("/tags")
+@app.route("/tags", methods=["GET", "POST"])
 def tags():
-    tags = get_tags()
-    return render_template("tags.html", tags=tags)
+    search = request.form.get('search', '')
+    if search:
+        tags = find_tags_by_search(search.lower().strip())
+    else:
+        tags = get_tags()
+
+    return render_template("tags.html", tags=tags, search=search)
 
 @app.route('/tags/<name>')
 def tag(name):
-    tag = find_tag_by_name(name)
-    if tag:
-        followed_tags_other = find_connected_tags_by_name(name, "follows")
-        skilled_tags_other = find_connected_tags_by_name(name, "skilled")
-        helped_tags_other = find_connected_tags_by_name(name, "helped")
-        worked_tags_other = find_connected_tags_by_name(name, "worked")
-
-        persons_following = find_person_by_tag(name,"follows")
-        persons_skilled = find_person_by_tag(name,"has")
-        # persons_working = find_person_by_tag(name,"works_on")
-        tasks = find_task_by_tag(name)
-        transactions = find_transaction_by_tag(name)
+    try:
+        tag = find_tag_by_name(name)
+    except:
+        abort(404)
     
-        tags_tasks = dict()       
-        shared_tasks = dict()
-        for task in tasks:
-            elementid = task['elementid(t)']
-            persons = find_persons_by_taskid(elementid)
-            shared_tasks[elementid] = persons
-            tags_s = find_tags_by_taskid(elementid)
-            tags_tasks[elementid] = tags_s
+    all_persons = get_persons()
+    followed_tags_other = find_connected_tags_by_name(name, "follows")
+    skilled_tags_other = find_connected_tags_by_name(name, "skilled")
+    helped_tags_other = find_connected_tags_by_name(name, "helped")
+    worked_tags_other = find_connected_tags_by_name(name, "worked")
+    related_tags = find_related_tags_by_name(name)
 
-        return render_template("tag.html", worked_tags_other=worked_tags_other,helped_tags_other=helped_tags_other, skilled_tags_other=skilled_tags_other, followed_tags_other=followed_tags_other, transactions=transactions, tag=tag, persons_following=persons_following,persons_skilled=persons_skilled,tasks=tasks,tags_tasks=tags_tasks,shared_tasks=shared_tasks)
-    else: 
-        return 404
+    persons_following = find_person_by_tag(name,"follows")
+
+    follows = False
+    if "user" in session:
+        for person in persons_following:
+            if person['p']['email'] == session['user']:
+                follows = True
+
+    persons_skilled = find_person_by_tag(name,"has")
+    skilled = False
+    if "user" in session:
+        for person in persons_skilled:
+            if person['p']['email'] == session['user']:
+                skilled = True
+
+    tasks = find_task_by_tag(name)
+    transactions = find_frequent_transaction_by_tag(name)
+
+    tags_tasks = dict()       
+    shared_tasks = dict()
+    for task in tasks:
+        elementid = task['elementid(t)']
+        persons = find_persons_by_taskid(elementid)
+        shared_tasks[elementid] = persons
+        tags_s = find_tags_by_taskid(elementid)
+        tags_tasks[elementid] = tags_s
+
+    return render_template("tag.html",  related_tags=related_tags, all_persons=all_persons, skilled=skilled, follows=follows, worked_tags_other=worked_tags_other,helped_tags_other=helped_tags_other, skilled_tags_other=skilled_tags_other, followed_tags_other=followed_tags_other, transactions=transactions, tag=tag, persons_following=persons_following,persons_skilled=persons_skilled,tasks=tasks,tags_tasks=tags_tasks,shared_tasks=shared_tasks)
 
 
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('404.html'), 404
 
+@app.route("/admin_tags", methods=["POST"])
+def admin_tags():
+    if session['admin']:
+        action = request.args.get('action')
+        tag1 = request.form["tag1"]
+        tag2 = request.form["tag2"]
+
+        if action == "relate":
+            relate_tags(tag1,tag2)
+            flash("Action successfully performed.")
+            return redirect(url_for("admin"))
+        elif action == "merge":
+            merge_tags(tag1,tag2)
+            flash("Action successfully performed.")
+            return redirect(url_for("admin"))
+    else:
+        abort(403)

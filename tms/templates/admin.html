@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Admin{% endblock %}
+{% block content %}
+
+<div class="container text-left">
+    <h2 style="padding-bottom: 15px; padding-top: 20px;">Admin</h2>
+    <div class="row align-items-start">
+        {% for message in get_flashed_messages() %}
+        <div class="alert alert-info" role="alert">
+            {{ message }}
+        </div>
+        {% endfor %}
+
+        <nav>
+            <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home"
+                    type="button" role="tab" aria-controls="nav-home" aria-selected="true">Queue</button>
+                <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile"
+                    type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Create Tags</button>
+            </div>
+        </nav>
+
+        <div class="tab-content" id="nav-tabContent">
+            <!-- Tab Queue -->
+            <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab"
+                tabindex="0">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Tag</th>
+                            <th scope="col"></th>
+                            <th scope="col">Tag</th>
+                            <th scope="col">Actions</th>
+                            <th scope="col"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tag in check_tags %}
+                        <tr>
+                            <td>
+                                <a class="link-light" href="/tags/{{ tag.t.name }}">
+                                    <span class="badge bg-tag">{{tag.t.name}}</span>
+                                </a>
+                            </td>
+                            <td>&#x2192;</td>
+                            <td>
+                                <a class="link-light" href="/tags/{{ tag.t2.name }}">
+                                    <span class="badge bg-tag">{{tag.t2.name}}</span>
+                                </a>
+                            </td>
+                            <td>
+                                <form method="POST" action="{{ url_for('admin_tags', action='relate') }}">
+                                    <input type="hidden" name="tag1" value="{{tag.t.name}}" id="tag1">
+                                    <input type="hidden" name="tag2" value="{{tag.t2.name}}" id="tag2">
+                                    <button class="btn btn-sm btn-dark" type="submit" method="POST"
+                                        action="{{ url_for('admin_tags', action='relate') }}">Relate</button>
+                                </form>
+                            </td>
+                            <td>
+                                <form method="POST" action="{{ url_for('admin_tags', action='merge') }}">
+                                    <input type="hidden" name="tag1" value="{{tag.t.name}}" id="tag1">
+                                    <input type="hidden" name="tag2" value="{{tag.t2.name}}" id="tag2">
+                                    <button class="btn btn-sm btn-dark" type="submit" method="POST"
+                                        action="{{ url_for('admin_tags', action='merge') }}">Merge</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+            </div>
+            <!-- Tab Create Tag-->
+            <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab" tabindex="0">
+                <ul class="list-group list-group-flush">
+                    <!-- Data Upload -->
+                    <li class="list-group-item">
+                        <form method="POST" enctype="multipart/form-data" action="{{ url_for('add_tag', rel_type='create_multiple') }}">
+                            <div class="mb-3">
+                                <label for="formFileSm" class="form-label">Upload a <code>.txt</code> file</label>
+                                <input class="form-control form-control-sm" id="formFileSm" type="file" accept=".txt" name="file">
+                            </div>
+                            <div class="mb-3">
+                                <input type="submit" value="Upload" class="btn btn-sm btn-dark">
+                            </div>
+                        </form>
+                    </li>
+                    <!-- Single Tag -->
+                    <li class="list-group-item">
+                        <form method="POST" action="{{ url_for('add_tag', rel_type='create_single') }}">
+                            <div class="mb-3">
+                                <label for="singletag" class="form-label">Create Tag</label>
+                                <input class="form-control" list="datalistOptions" id="singletag" name="singletag"
+                                    placeholder="Type ...">
+                                <datalist id="datalistOptions">
+                                    {% for tag in all_tags %}
+                                    <option value="{{ tag.t.name }}">
+                                        {% endfor %}
+                                </datalist>
+                            </div>
+                            <button type="submit" class="btn btn-sm btn-dark">Create</button>
+
+
+                        </form>
+
+                    </li>
+                </ul>
+
+
+            </div>
+        </div>
+
+
+
+
+
+
+
+
+
+    </div>
+
+</div>
+
+{% endblock %}

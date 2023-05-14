@@ -105,6 +105,8 @@ def find_person_by_tag(name,rel_type):
 def get_tags():
     with tms_db.session() as session:
         result = session.run("MATCH (t:tag) RETURN t order by t.name")
+        if type(result) is type(None):
+            return False
         data = result.data()
         return data
     
@@ -114,7 +116,6 @@ def find_tag_by_name(name):
         result = session.run(query,name=name)
         data = result.single()["t"]
         return data
-    
     
 def find_task_by_tag(tag):
     query = "MATCH (t:task)-[r:includes]-(tag:tag) where tag.name = $tag RETURN t, elementid(t)"
@@ -129,6 +130,45 @@ def find_tags_by_email(email):
         result = session.run("MATCH (p:person)-[r:follows]->(t:tag) where p.email = $email return t order by t.name", email=email)
         data = result.data()
         return data
+    
+def find_tags_by_search(search):
+     query =  '''
+            MATCH (t:tag)
+            WHERE 0=1
+            or apoc.text.fuzzyMatch(tolower(t.name), $search)
+            or tolower(t.name) contains $search
+            RETURN t
+            ORDER BY t.name
+            '''
+     with tms_db.session() as session:
+        result = session.run(query, {"search": search})
+        data = result.data()
+        return data
+     
+def find_related_tags_by_name(name):
+    query = "MATCH (t:tag)-[:related]-(t2:tag) where t2.name = $name return t"
+    with tms_db.session() as session:
+        result = session.run(query, name=name)
+        data = result.data()
+        return data
+     
+def find_persons_by_search(search):
+     query =  '''
+            MATCH (p:person)
+            WHERE 0=1
+            or apoc.text.fuzzyMatch(tolower(p.last_name), $search)
+            or apoc.text.fuzzyMatch(tolower(p.first_name), $search)
+            or tolower(p.last_name) contains $search
+            or tolower(p.first_name) contains $search
+            or tolower(p.job_title) contains $search
+            RETURN p
+            ORDER BY p.name
+            '''
+     with tms_db.session() as session:
+        result = session.run(query, {"search": search})
+        data = result.data()
+        return data
+     
 
 def find_tasks_by_email(email):
     with tms_db.session() as session:
@@ -154,7 +194,7 @@ def find_connected_tags_by_name(name, rel_type):
         query = "match (t:tag)-[:includes]-(:task)<-[:works_on]-(:person)-[:works_on]->(:task)-[:includes]-(t2:tag) where t.name = $name"
 
     
-    query += " return distinct t2.name as name order by t2.name"
+    query += " return distinct t2.name as name order by t2.name LIMIT 5" # TODO: Limit entfernen
 
     with tms_db.session() as session:
         result = session.run(query, name=name)
@@ -237,14 +277,14 @@ def get_recently_added_tags():
         return data
 
 def get_transaction():
-    query = "match (p2:person)<-[r2:to]-(tx:transaction)<-[r:from]-(p1:person), (tx)-[r3:includes]->(t:tag) return tostring(tx.date) as date, p1 as p_from, p2 as p_to, t order by tx.date desc"
+    query = "match (p2:person)<-[r2:to]-(tx:transaction)<-[r:from]-(p1:person), (tx)-[r3:includes]->(t:tag) return tostring(tx.date) as date, p1 as p_from, p2 as p_to, t order by tx.date desc LIMIT 15"
     with tms_db.session() as tx:
         result = tx.run(query)
         data = [record for record in result]
         return data
     
 def get_transaction_tag_count():
-    query = "match (:transaction)-[r3:includes]->(t:tag) return count(t) as anz, t order by count(t) desc"  
+    query = "match (:transaction)-[r3:includes]->(t:tag) return count(t) as anz, t order by count(t) desc LIMIT 25"  
     with tms_db.session() as tx:
         result = tx.run(query)
         data = [record for record in result]
@@ -252,7 +292,7 @@ def get_transaction_tag_count():
 
 def get_persons():
     with tms_db.session() as session:
-        result = session.run("MATCH (p:person) return p.first_name as first_name, p.last_name as last_name, elementid(p) as elementid, p.email as email order by p.last_name")
+        result = session.run("MATCH (p:person) return p, elementid(p) as elementid order by p.last_name")
         data = result.data()
         return data
     
@@ -263,9 +303,15 @@ def find_transaction_by_email(email):
         data = [record for record in result]
         return data
     
+def find_frequent_transaction_by_tag(tag):
+    query = "match (t:tag)<-[r3:includes]-(tx:transaction)<-[r:from]-(p1:person) where t.name = $tag return count(tx) as anz, p1 as p_from"
+    with tms_db.session() as tx:
+        result = tx.run(query, tag=tag)
+        data = [record for record in result]
+        return data    
+    
 def find_transaction_by_tag(tag):
     query = "match (t:tag)<-[r3:includes]-(tx:transaction)<-[r:from]-(p1:person) where t.name = $tag return count(p1) as anz, tx.date as date, p1 as p_from, t order by count(p1) desc, p1.last_name asc"
-    #query = "match (p2:person)<-[r2:to]-(tx:transaction)<-[r:from]-(p1:person), (tx)-[r3:includes]->(t:tag) where t.name = $tag return count(distinct p1) as count, tx.date as date, p1 as p_from, p2 as p_to, t order by p1.last_name asc"
     with tms_db.session() as tx:
         result = tx.run(query, tag=tag)
         data = [record for record in result]
@@ -273,9 +319,9 @@ def find_transaction_by_tag(tag):
     
 def get_popular_tags(rel_type):
     if rel_type == "follows":
-            query = "MATCH (t:tag)-[r:" + rel_type + "]-(m) RETURN t.name as name, count(r) as anz ORDER BY count(r) DESC,t.name asc"
+            query = "MATCH (t:tag)-[r:" + rel_type + "]-(m) RETURN t.name as name, count(r) as anz ORDER BY count(r) DESC,t.name asc LIMIT 5"
     else:
-        query = "MATCH (t:tag)-[r:includes]-(m) where (m)-[:" + rel_type + "]-() RETURN t.name as name, count(r) as anz ORDER BY count(r) DESC,t.name asc"
+        query = "MATCH (t:tag)-[r:includes]-(m) where (m)-[:" + rel_type + "]-() RETURN t.name as name, count(r) as anz ORDER BY count(r) DESC,t.name asc LIMIT 5"
 
     with tms_db.session() as tx:
         result = tx.run(query)
@@ -294,29 +340,63 @@ def get_unpopular_tags(rel_type):
         return data
 '''
 
-# test similar tags
-def merge():
-    tags = get_tags()
-    import spacy
+def get_similar_tags():
+    query = '''
+    MATCH (t:tag), (t2:tag)
+            WHERE (apoc.text.fuzzyMatch(t.name, t2.name) or t.name contains t2.name)
+            and elementid(t) <> elementid(t2)
+            and not ((t)-[:related]-(t2))
+            RETURN t, t2
+            ORDER BY t.name
+    '''
+    with tms_db.session() as tx:
+        result = tx.run(query)
+        data = result.data()
+    return data
 
-    nlp = spacy.load("en_core_web_sm")
+def relate_tags(tag1,tag2):
+    query = '''
+    MATCH (t:tag), (t2:tag)
+    WHERE t.name = $tag1 and t2.name = $tag2
+    CREATE (t)-[r:related]->(t2)
+    '''
+    with tms_db.session() as tx:
+        result = tx.run(query, tag1=tag1, tag2=tag2)
+        data = result.data()
+    return data
 
-    terms = list()
-    for tag in tags:
-        terms.append(tag['t']['name'])
+def merge_tags(tag1,tag2):
+    query = '''
+    MATCH (t:tag), (t2:tag)
+    WHERE t.name = $tag1 and t2.name = $tag2
+    CALL apoc.refactor.mergeNodes([t, t2], {properties: 'overwrite'})
+    YIELD node
+    RETURN node
+    '''
+    with tms_db.session() as tx:
+        result = tx.run(query, tag1=tag1, tag2=tag2)
+        data = result.data()
+    return data
 
-    terms_freq = dict()
-    for term in terms:
-        similarity_scores = []
-        for other_term in terms:
-            if term != other_term:
-                print(term," <--> ", other_term)
-                similarity = nlp(term).similarity(nlp(other_term))
-                if similarity > 0.90:
-                    similarity_scores.append((other_term, similarity))
-                if similarity_scores:
-                    similarity_scores.sort(key=lambda x: x[1], reverse=True)
-                    terms_freq[term] = similarity_scores
-
-    return str(terms_freq)
-
+def create_tag(name):
+    if find_tag(name):
+        return False
+    else:
+        with tms_db.session() as session:
+            query = '''
+                    CREATE (t:tag {
+                            name: $name
+                            ,created: datetime()
+                            })
+                    '''
+            session.run(query, name=name)
+            return True
+        
+def find_tag(name):
+    with tms_db.session() as session:
+        result = session.run("MATCH (t:tag) WHERE t.name = $name RETURN t", name=name)
+        record = result.single()
+        if record:
+            return True
+        else:
+            return None

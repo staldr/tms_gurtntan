@@ -8,29 +8,24 @@
 {% endfor %}
 
 <div class="container text-left">
-
     <div class="row align-items-start">
-        <div class="col " style="padding-top: 20px;"> <!--Contact-->
-            <div>
-                <h2 style="padding-bottom: 15px;">{{ person.first_name }} {{ person.last_name }}, {{
-                        person.job_title }}
+        <div class="col">
+            <h2 style="padding-bottom: 15px; padding-top: 20px;"><span class="badge rounded-pill bg-person">{{
+                    person.last_name }}, {{ person.first_name }} ({{person.job_title }})</span>
+                <a class="link-dark" href="mailto:{{person.email}}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-envelope-fill" viewBox="0 0 16 16">
+                        <path
+                            d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414.05 3.555ZM0 4.697v7.104l5.803-3.558L0 4.697ZM6.761 8.83l-6.57 4.027A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586l-1.239-.757Zm3.436-.586L16 11.801V4.697l-5.803 3.546Z" />
+                    </svg></a>
+                <a class="link-dark" href="tel:{{person.phone}}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-telephone-fill" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M1.885.511a1.745 1.745 0 0 1 2.61.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.678.678 0 0 0 .178.643l2.457 2.457a.678.678 0 0 0 .644.178l2.189-.547a1.745 1.745 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.634 18.634 0 0 1-7.01-4.42 18.634 18.634 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877L1.885.511z" />
+                    </svg></a>
 
-                        <a class="link-dark" href="mailto:{{person.email}}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                class="bi bi-envelope-fill" viewBox="0 0 16 16">
-                                <path
-                                    d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414.05 3.555ZM0 4.697v7.104l5.803-3.558L0 4.697ZM6.761 8.83l-6.57 4.027A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586l-1.239-.757Zm3.436-.586L16 11.801V4.697l-5.803 3.546Z" />
-                            </svg></a>
-                        <a class="link-dark" href="tel:{{person.phone}}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                class="bi bi-telephone-fill" viewBox="0 0 16 16">
-                                <path fill-rule="evenodd"
-                                    d="M1.885.511a1.745 1.745 0 0 1 2.61.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.678.678 0 0 0 .178.643l2.457 2.457a.678.678 0 0 0 .644.178l2.189-.547a1.745 1.745 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.634 18.634 0 0 1-7.01-4.42 18.634 18.634 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877L1.885.511z" />
-                            </svg></a>
-
-                    </h2>
-
-            </div>
+            </h2>
         </div>
     </div>
 </div>
@@ -39,11 +34,65 @@
         <div class="col"> <!--Interest-->
             <div class="card">
                 <h6 class="card-header">
-                    Followed Tags
-                    <!-- start is_user -->
+                    Following
                     {% if is_user%}
                     <!-- Button trigger modal -->
                     <a href="#" class="link-dark" data-bs-toggle="modal" data-bs-target="#addtag">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-plus-square" viewBox="0 0 16 16">
+                            <path
+                                d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z" />
+                            <path
+                                d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                        </svg>
+                    </a>
+                    <!-- Modal -->
+                    <div class="modal fade" id="addtag" tabindex="-1" aria-labelledby="exampleModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Follow Tag</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form method="POST" action="{{ url_for('add_tag', rel_type='follows_multiple') }}">
+
+                                        <div class="mb-3">
+                                            <label for="tags" class="form-label">Select Tag(s) <code>(CTRL / SHIFT for multiple selection)</code></label>
+                                            <select name="tags" id="tags" class="form-select" multiple
+                                                aria-label="multiple select" size="15">
+                                                {% for tag in all_tags %}
+                                                <option value="{{ tag.t.name }}">{{tag.t.name}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="singletag" class="form-label">Type in a (new) Tag</label>
+                                            <input class="form-control" list="datalistOptions" id="singletag" name="singletag" placeholder="Type ...">
+                                            <datalist id="datalistOptions">
+                                                {% for tag in all_tags %}
+                                                <option value="{{ tag.t.name }}">
+                                                {% endfor %}
+                                            </datalist>
+                                        </div>
+                                        <button type="submit" class="btn btn-light mb-3">Follow</button>
+
+
+                                    </form>
+
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--End of modal-->
+
+                    <!-- Button trigger modal -->
+                    <a href="#" class="link-dark" data-bs-toggle="modal" data-bs-target="#removetag">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                             class="bi bi-pencil-square" viewBox="0 0 16 16">
                             <path
@@ -53,16 +102,18 @@
                         </svg>
                     </a>
                     <!-- Modal -->
-                    <div class="modal fade" id="addtag" tabindex="-1" aria-labelledby="exampleModalLabel"
+                    <div class="modal fade" id="removetag" tabindex="-1" aria-labelledby="exampleModalLabel"
                         aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Remove Tag(s)</h1>
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Unfollow Tag(s)</h1>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
                                 </div>
+
                                 <div class="modal-body">
+                                    {% if tags %}
                                     <form method="POST" action="{{ url_for('remove_tag', rel_type='follows') }}">
                                         {% for tag in tags %}
                                         <div class="form-check form-check-inline">
@@ -74,10 +125,17 @@
                                         </div>
                                         {% endfor %}
                                         <p>
-                                            <button class="btn btn-danger" type="submit">Remove</button>
+                                            <button class="btn btn-danger" type="submit">Unfollow</button>
                                         </p>
                                     </form>
+                                    {% endif %}
+                                    {% if not tags %}
+                                    <p style="font-size: smaller; font-style: italic;">
+                                        No tags to unfollow.
+                                    </p>
+                                    {% endif %}
                                 </div>
+
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
                                 </div>
@@ -87,25 +145,35 @@
                     <!--End of modal-->
                     {% endif %}
                     <!-- end is_user -->
+
                 </h6>
 
                 <div class="card-body">
+                    <!-- TODO ganz entfernen?
                     {% if is_user%}
                     <form method="POST" action="{{ url_for('add_tag', rel_type='follows') }}">
                         <div class="input-group input-group-sm mb-3">
                             <input type="text" class="form-control"
                                 aria-label="Sizing example input"
-                                aria-describedby="inputGroup-sizing-sm" name="tag" required="required">
+                                aria-describedby="inputGroup-sizing-sm" name="tag" required="required" id="followed_tags">
+                                
                             <span class="input-group-text" id="inputGroup-sizing-sm"><button
                                     class="btn btn-sm" type="submit">Follow</button></span>
+                                    
                         </div>
                     </form>
+                    {% endif %}
+                    -->
+                    {% if not tags %}
+                    <p style="font-size: smaller; font-style: italic;">
+                        No followed tags.
+                    </p>
                     {% endif %}
                     <p class="card-text">
 
                         {% for tag in tags %}
                         <a class="link-light" href="/tags/{{ tag['t'].get('name') }}">
-                            <span class="badge bg-tag">{{ tag['t'].get('name') }}</span>
+                            <span class="badge bg-follow">{{ tag['t'].get('name') }}</span>
                         </a>
                         {% endfor %}
                     </p>
@@ -145,7 +213,13 @@
                                     <form method="POST" action="{{ url_for('add_skill') }}">
                                         <div class="mb-3">
                                             <label for="tag" class="form-label">Tag</label>
-                                            <input type="text" class="form-control" id="tag" name="tag">
+                                            <select name="tag" id="tag" class="form-select" aria-label="tag"
+                                                required="required">
+                                                <option value="" selected>-- select --</option>
+                                                {% for tag in all_tags%}
+                                                <option value="{{tag.t.name}}">{{tag.t.name}}</option>
+                                                {% endfor %}
+                                            </select>
                                         </div>
                                         <div class="mb-3">
                                             <label for="desc" class="form-label">Description</label>
@@ -168,12 +242,17 @@
                     <!-- end is_user -->
                 </h6>
                 <div class="card-body">
+                    {% if not skills %}
+                    <p style="font-size: smaller; font-style: italic;">
+                        No skills available.
+                    </p>
+                    {% endif %}
                     {% for skill in skills %}
 
                     <!-- Button trigger modal -->
                     <a class="link-light" href="#" data-bs-toggle="modal"
                         data-bs-target="#{{ skill['s'].get('created') }}">
-                        <span class="badge bg-tag">{{ skill['t'].get('name') }}
+                        <span class="badge bg-skill">{{ skill['t'].get('name') }}
                             <span class="badge rounded-pill text-bg-light">
                                 {{count_skills[skill['elementid(s)']]}}
                                 <span class="visually-hidden">endorsements</span>
@@ -192,7 +271,7 @@
                                             <span class="badge bg-tag">{{ skill['t'].get('name') }}
 
                                         </a>
-                                        
+
 
 
 
@@ -206,7 +285,8 @@
                                     <br />
                                     <br />
                                     <div class="card">
-                                        <h6 class="card-header">Other persons skilled in {{ skill['t'].get('name') }}:</h6>
+                                        <h6 class="card-header">Other persons skilled in {{ skill['t'].get('name') }}:
+                                        </h6>
                                         <div class="card-body">
                                             {% for p in shared_skills.get(skill['t'].get('name')) %}
                                             <a class="link-light" href="/persons/{{p['p2']['email']}}">
@@ -216,15 +296,16 @@
                                             {% endfor %}
                                         </div>
                                     </div>
-                                    <br/>
+                                    <br />
                                     <div class="card">
                                         <h6 class="card-header"><span class="badge rounded-pill bg-dark">
-                                            {{count_skills[skill['elementid(s)']]}}
-                                        </span> endorsements by:</h6>
+                                                {{count_skills[skill['elementid(s)']]}}
+                                            </span> endorsements by:</h6>
                                         <div class="card-body">
                                             {% for p in endorsed_skill.get(skill['t'].get('name')) %}
                                             <a class="link-light" href="/persons/{{p['p']['email']}}">
-                                                <span class="badge rounded-pill bg-person">{{p['p']['last_name']}}, {{p['p']['first_name']}}</span>
+                                                <span class="badge rounded-pill bg-person">{{p['p']['last_name']}},
+                                                    {{p['p']['first_name']}}</span>
                                             </a>
                                             {% endfor %}
                                         </div>
@@ -258,7 +339,7 @@
         <div class="col"> <!--Transactions-->
             <div class="card" style="width: 550px;">
                 <h6 class="card-header">
-                    Transactions
+                    Knowledge Transfers
                     {% if is_user%}
                     <!-- Button trigger modal -->
                     <a href="#" class="link-dark" data-bs-toggle="modal" data-bs-target="#addtransaction">
@@ -276,24 +357,15 @@
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Add Transaction</h1>
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Transfer knowledge</h1>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
                                     <form method="POST" action="{{ url_for('add_transaction') }}">
-                                        <div class="mb-3">
-                                            <label for="from" class="form-label">From</label>
-                                            <select name="from" id="from" class="form-select"
-                                                aria-label="Default select example" required="required">
-                                                <option value="" selected>-- select --</option>
+                                        <input type="hidden" class="form-control" id="from" name="from"
+                                            value="{{ session['user'] }}">
 
-                                                {% for person in all_persons%}
-                                                <option value="{{person.email}}">{{person.last_name}},
-                                                    {{person.first_name}} </option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
                                         <div class="mb-3">
                                             <label for="to" class="form-label">To</label>
                                             <select name="to" id="to" class="form-select"
@@ -308,8 +380,13 @@
                                         </div>
                                         <div class="mb-3">
                                             <label for="tag" class="form-label">Tag</label>
-                                            <input type="text" class="form-control" id="tag" name="tag"
+                                            <select name="tag" id="tag" class="form-select" aria-label="tag"
                                                 required="required">
+                                                <option value="" selected>-- select --</option>
+                                                {% for tag in all_tags%}
+                                                <option value="{{tag.t.name}}">{{tag.t.name}}</option>
+                                                {% endfor %}
+                                            </select>
                                         </div>
                                         <div class="mb-3">
                                             <label for="date" class="form-label">Date</label>
@@ -334,12 +411,16 @@
                 </h6>
                 <div class="card-body">
                     <ul class="list-group list-group-flush">
-
+                        {% if not transactions %}
+                        <p style="font-size: smaller; font-style: italic;">
+                            No transactions available.
+                        </p>
+                        {% endif %}
                         {% for tx in transactions %}
                         <li class="list-group-item" style="padding: 0px; padding-bottom: 2px; padding-top: 2px;">
 
                             <span style="font-size: smaller;"><b>{{tx.date}}</b></span><a class="link-light"
-                                href="/tags/{{tx.t.name}}"> <span class="badge bg-tag">{{tx.t.name}}</span></a>
+                                href="/tags/{{tx.t.name}}"> <span class="badge bg-transfer">{{tx.t.name}}</span></a>
                             <a class="link-light" href="/persons/{{tx.p_from.email}}">
                                 <span class="badge rounded-pill bg-person">{{tx.p_from.last_name}},
                                     {{tx.p_from.first_name}}</span>
@@ -361,7 +442,7 @@
 <div class="container text-left" style="padding-top: 15px;">
     <div class="row align-items-start">
         <div class="col">
-            <div class="card">
+            <div class="card" style="height: 400px;">
                 <h6 class="card-header">Tasks
                     {% if is_user%}
                     <!-- Button trigger modal -->
@@ -401,8 +482,15 @@
                                         </div>
 
                                         <div class="mb-3">
-                                            <label for="tag" class="form-label">Tag(s) (separate by semicolon)</label>
-                                            <input type="text" class="form-control" id="tag" name="tag">
+                                            <label for="tag" class="form-label">Tag(s)</label>
+                                            <select name="tags" id="tags" class="form-select" multiple
+                                                aria-label="multiple select example" required="required">
+                                                <option value="" selected>-- select tag(s) --</option>
+                                                {% for tag in all_tags %}
+                                                <option value="{{ tag.t.name }}">{{tag.t.name}}</option>
+                                                {% endfor %}
+                                            </select>
+
                                         </div>
                                         <div class="mb-3">
                                             <label for="collaborators" class="form-label">Collaborators</label>
@@ -436,6 +524,11 @@
                     <!-- end is_user -->
                 </h6>
                 <div class="card-body">
+                    {% if not tasks %}
+                    <p style="font-size: smaller; font-style: italic;">
+                        No tasks available.
+                    </p>
+                    {% endif %}
                     <ul class="list-group list-group-flush">
 
                         {% for task in tasks %}
@@ -450,7 +543,7 @@
                             {% for t in tags_tasks[task['elementid(t)']] %}
                             <a class="link-light" href="/tags/{{t['tag'].get('name')}}">
 
-                                <span class="badge bg-tag">{{t['tag'].get('name')}}</span>
+                                <span class="badge bg-task">{{t['tag'].get('name')}}</span>
                             </a>
                             {% endfor %} <br />
 
@@ -469,7 +562,7 @@
                                 <div class="modal-dialog">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h1 class="modal-title fs-5" id="exampleModalLabel">Task Details: {{
+                                            <h1 class="modal-title fs-5" id="exampleModalLabel">{{
                                                 task['t'].get('title') }}</h1>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal"
                                                 aria-label="Close"></button>
@@ -485,13 +578,13 @@
                                             <p> {% for t in tags_tasks[task['elementid(t)']] %}
                                                 <a class="link-light" href="/tags/{{t['tag'].get('name')}}">
 
-                                                    <span class="badge bg-tag">{{t['tag'].get('name')}}</span>
+                                                    <span class="badge bg-task">{{t['tag'].get('name')}}</span>
                                                 </a>
                                                 {% endfor %}
                                                 <br />
                                             </p>
                                             <div class="card">
-                                                <h6 class="card-header">Other persons working on this task:</h6>
+                                                <h6 class="card-header">People working on this task:</h6>
                                                 <div class="card-body">
                                                     {% for p in shared_tasks[task['elementid(t)']] %}
                                                     <a class="link-light" href="/persons/{{p['p'].get('email')}}">
