@@ -318,17 +318,10 @@ def add_task():
     
 @app.route("/add_transaction", methods=["POST"])
 def add_transaction():
-    email = session['user'] 
     p_from = request.form["from"]
     p_to = request.form["to"]
     tag = request.form["tag"].lower().strip()
     date = request.form["date"]
-    if str(email) != str(p_from) and str(email) != str(p_to):
-        flash("You have to be part of the transaction.")
-        return redirect(url_for("person", email=session['user']))
-    elif p_from == p_to:
-        flash("Two different persons have to be part of the transaction.")
-        return redirect(url_for("person", email=session['user']))
     query = '''
         merge (t:tag {name: $tag})
         ON CREATE SET t.created = datetime(), t.last_modified = datetime()

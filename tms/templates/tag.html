@@ -3,6 +3,7 @@
 {% block content %}
 
 <!-- Title incl. Action Buttons -->
+
 <div class="container text-left">
     <div class="row align-items-start">
         <div class="col">
@@ -16,7 +17,7 @@
             <form method="POST" action="{{ url_for('add_tag', rel_type='follows') }}">
                 <input type="hidden" name="tag" value="{{ tag.name }} " id="followed_tags">
                 <button class="btn btn-sm btn-dark" type="submit" method="POST"
-                    action="{{ url_for('add_tag', rel_type='follows') }}">Follow</button>
+                    action="{{ url_for('add_tag', rel_type='follows') }}">Follow Tag</button>
             </form>
 
             {% endif %}
@@ -26,7 +27,7 @@
             <form method="POST" action="{{ url_for('remove_tag', rel_type='follows') }}">
                 <input type="hidden" name="tag" value="{{ tag.name }} ">
                 <button class="btn btn-sm btn-dark" type="submit" method="POST"
-                    action="{{ url_for('add_tag', rel_type='follows') }}">Unfollow</button>
+                    action="{{ url_for('add_tag', rel_type='follows') }}">Unfollow Tag</button>
             </form>
 
             {% endif %}
@@ -105,10 +106,10 @@
                                     <select name="to" id="to" class="form-select" aria-label="Default select example"
                                         required="required">
                                         <option value="" selected>-- select --</option>
-
+                                        
                                         {% for person in all_persons%}
-                                        <option value="{{person.email}}">{{person.last_name}},
-                                            {{person.first_name}} </option>
+                                        <option value="{{person.email}}">{{person.p.last_name}},
+                                            {{person.p.first_name}} </option>
                                         {% endfor %}
                                     </select>
                                 </div>
@@ -229,7 +230,7 @@
                             People are also following:
                         </button>
                     </h2>
-                    <div id="flush-collapseOne" class="accordion-collapse collapse"
+                    <div id="flush-collapseOne" class="accordion-collapse collapse "
                         data-bs-parent="#accordionFlushExample">
                         <div class="accordion-body">
                             {% if not followed_tags_other%}

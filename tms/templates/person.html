@@ -77,15 +77,14 @@
                                                 {% endfor %}
                                             </datalist>
                                         </div>
-                                        <button type="submit" class="btn btn-light mb-3">Follow</button>
+                                        <button type="submit" class="btn btn-dark mb-3">Follow</button>
+                                        <button type="button" class="btn btn-light mb-3" data-bs-dismiss="modal">Close</button>
 
 
                                     </form>
 
                                 </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -225,14 +224,12 @@
                                             <label for="desc" class="form-label">Description</label>
                                             <textarea class="form-control" id="desc" rows="3" name="desc"></textarea>
                                         </div>
-                                        <button type="submit" class="btn btn-light mb-3">Add</button>
+                                        <button type="submit" class="btn btn-dark mb-3">Add</button>
+                                        <button type="button" class="btn btn-light mb-3" data-bs-dismiss="modal">Cancel</button>
 
 
                                     </form>
 
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
                                 </div>
                             </div>
                         </div>
@@ -373,8 +370,8 @@
                                                 <option value="" selected>-- select --</option>
 
                                                 {% for person in all_persons%}
-                                                <option value="{{person.email}}">{{person.last_name}},
-                                                    {{person.first_name}} </option>
+                                                <option value="{{person.p.email}}">{{person.p.last_name}},
+                                                    {{person.p.first_name}} </option>
                                                 {% endfor %}
                                             </select>
                                         </div>
@@ -394,14 +391,13 @@
                                                 required="required">
                                         </div>
 
-                                        <button type="submit" class="btn btn-light mb-3">Add</button>
+                                        <button type="submit" class="btn btn-dark mb-3">Add</button>
+                                        <button type="button" class="btn btn-light mb-3" data-bs-dismiss="modal">Cancel</button>
 
                                     </form>
 
                                 </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -482,9 +478,9 @@
                                         </div>
 
                                         <div class="mb-3">
-                                            <label for="tag" class="form-label">Tag(s)</label>
+                                            <label for="tag" class="form-label">Tag(s) <code>(CTRL / SHIFT for multiple selection)</code></label>
                                             <select name="tags" id="tags" class="form-select" multiple
-                                                aria-label="multiple select example" required="required">
+                                                aria-label="multiple select example" required="required" size="10">
                                                 <option value="" selected>-- select tag(s) --</option>
                                                 {% for tag in all_tags %}
                                                 <option value="{{ tag.t.name }}">{{tag.t.name}}</option>
@@ -493,13 +489,13 @@
 
                                         </div>
                                         <div class="mb-3">
-                                            <label for="collaborators" class="form-label">Collaborators</label>
+                                            <label for="collaborators" class="form-label">Collaborators <code>(CTRL / SHIFT for multiple selection)</code></label>
                                             <select name="collaborators" id="collaborators" class="form-select" multiple
                                                 aria-label="multiple select example" required="required">
                                                 <option value="" selected>-- select collaborator(s) --</option>
                                                 {% for person in all_persons%}
-                                                <option value="{{person.email}}">{{person.last_name}},
-                                                    {{person.first_name}} </option>
+                                                <option value="{{person.email}}">{{person.p.last_name}},
+                                                    {{person.p.first_name}} </option>
                                                 {% endfor %}
                                             </select>
                                         </div>
@@ -507,15 +503,14 @@
                                             <label for="desc" class="form-label">Description</label>
                                             <textarea class="form-control" id="desc" rows="3" name="desc"></textarea>
                                         </div>
-                                        <button type="submit" class="btn btn-light mb-3">Add</button>
+                                        <button type="submit" class="btn btn-dark mb-3">Add</button>
+                                        <button type="button" class="btn btn-light mb-3" data-bs-dismiss="modal">Cancel</button>
 
 
                                     </form>
 
                                 </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                </div>
+
                             </div>
                         </div>
                     </div>

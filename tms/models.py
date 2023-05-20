@@ -194,7 +194,7 @@ def find_connected_tags_by_name(name, rel_type):
         query = "match (t:tag)-[:includes]-(:task)<-[:works_on]-(:person)-[:works_on]->(:task)-[:includes]-(t2:tag) where t.name = $name"
 
     
-    query += " return distinct t2.name as name order by t2.name LIMIT 5" # TODO: Limit entfernen
+    query += " return distinct t2.name as name order by t2.name LIMIT 4" # TODO: Limit entfernen
 
     with tms_db.session() as session:
         result = session.run(query, name=name)
@@ -275,7 +275,7 @@ def get_recently_added_tags():
         result = tx.run(query)
         data = result.data()
         return data
-
+# TODO: Transaction in Transfer umbenennen.
 def get_transaction():
     query = "match (p2:person)<-[r2:to]-(tx:transaction)<-[r:from]-(p1:person), (tx)-[r3:includes]->(t:tag) return tostring(tx.date) as date, p1 as p_from, p2 as p_to, t order by tx.date desc LIMIT 15"
     with tms_db.session() as tx:
