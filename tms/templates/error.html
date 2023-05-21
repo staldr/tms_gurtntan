@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Error {{status_code}} {% endblock %}
+{% block content %}
+
+<div class="container text-left">
+    <div class="row align-items-start">
+        <div class="col">
+            <h2 style="padding-bottom: 15px; padding-top: 20px;">Error {{status_code}}</h2>
+        </div>
+    </div>
+    <div class="row align-items-start">
+        <div class="col">
+            <p>Error message:</p>
+            <p> {{msg}}</p>
+        </div>
+    </div>
+
+</div>
+
+
+{% endblock %}

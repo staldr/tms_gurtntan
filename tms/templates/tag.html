@@ -93,7 +93,7 @@
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="exampleModalLabel">Transfer Knowledge</h1>
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Add Knowledge Transfer</h1>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
@@ -108,7 +108,7 @@
                                         <option value="" selected>-- select --</option>
                                         
                                         {% for person in all_persons%}
-                                        <option value="{{person.email}}">{{person.p.last_name}},
+                                        <option value="{{person.p.email}}">{{person.p.last_name}},
                                             {{person.p.first_name}} </option>
                                         {% endfor %}
                                     </select>
@@ -235,7 +235,7 @@
                         <div class="accordion-body">
                             {% if not followed_tags_other%}
                             <p style="font-size: smaller; font-style: italic;">
-                                No related tags found :-&#40;
+                                No related interests found :-&#40;
                             </p>
                             {%endif%}
                             {% for tag in followed_tags_other%}
@@ -290,7 +290,7 @@
                         <div class="accordion-body">
                             {% if not helped_tags_other%}
                             <p style="font-size: smaller; font-style: italic;">
-                                No related tags found :-&#40;
+                                No related knowledge transfers found :-&#40;
                             </p>
                             {%endif%}
                             {% for tag in helped_tags_other%}

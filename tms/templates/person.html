@@ -256,9 +256,14 @@
                                     <br />
                                     <br />
                                     <div class="card">
-                                        <h6 class="card-header">Other persons skilled in {{ skill['t'].get('name') }}:
+                                        <h6 class="card-header">People also skilled in {{ skill['t'].get('name') }}:
                                         </h6>
                                         <div class="card-body">
+                                            {% if not shared_skills.get(skill['t'].get('name')) %}
+                                            <p style="font-size: smaller; font-style: italic;">
+                                                No skilled people found :-&#40;
+                                            </p>
+                                            {% endif %}
                                             {% for p in shared_skills.get(skill['t'].get('name')) %}
                                             <a class="link-light" href="/persons/{{p['p2']['email']}}">
                                                 <span class="badge rounded-pill bg-person">
@@ -273,6 +278,11 @@
                                                 {{count_skills[skill['elementid(s)']]}}
                                             </span> endorsements by:</h6>
                                         <div class="card-body">
+                                            {% if not endorsed_skill.get(skill['t'].get('name')) %}
+                                            <p style="font-size: smaller; font-style: italic;">
+                                                No endorsements found :-&#40;
+                                            </p>
+                                            {% endif %}
                                             {% for p in endorsed_skill.get(skill['t'].get('name')) %}
                                             <a class="link-light" href="/persons/{{p['p']['email']}}">
                                                 <span class="badge rounded-pill bg-person">{{p['p']['last_name']}},
@@ -328,7 +338,7 @@
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Add knowledge transfer</h1>
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Add Knowledge transfer</h1>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
                                 </div>

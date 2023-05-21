@@ -194,21 +194,12 @@ def add_tag():
         tags = []
         tags.append(request.form["tag"].lower().strip())
 
-    query = '''merge (t:tag {{name: $tag}})
-                                    ON CREATE SET t.created = datetime(), t.last_modified = datetime()
-                                    with t
-                                    match (p:person) where p.email = $email
-                                    merge (p)-[r:{}]->(t)
-                                    ON CREATE SET r.created = datetime()
-                                    '''.format(rel_type)
+
     if request.method == "POST":
-        with tms_db.session() as tx:
-            try:
-                for tag in tags:
-                    tx.run(query, tag=tag, email=email)
-            except:
-                return abort(500) # TODO: Exception Handling ausbauen
-            return redirect(request.referrer)
+        for tag in tags:
+            add_tag_by_reltype(tag, email, rel_type)   
+
+        return redirect(request.referrer)
         
 @app.route("/remove_tag", methods=["POST"])
 def remove_tag():
@@ -291,14 +282,14 @@ def add_task():
         CREATE (t:task {created: datetime(), last_modified: datetime(), description: $desc, title: $title, start_date: $start_date, end_date: $end_date}) WITH t
         MATCH (p:person) WHERE p.email = $email
         CREATE (p)-[:works_on]->(t)
-        RETURN elementid(t) as elementid
+        RETURN elementid(t) AS elementid
     '''
     query2 = '''
         MATCH (t:task), (p:person) WHERE elementid(t) = $elementid and p.email = $collaborator
         CREATE (p)-[:works_on]->(t) 
     '''
     query3 = '''
-        merge (tag:tag {name: $tag})
+        MERGE (tag:tag {name: $tag})
         ON CREATE SET tag.created = datetime(), tag.last_modified = datetime()
         with tag
         MATCH (t:task) WHERE elementid(t) = $elementid
@@ -361,7 +352,7 @@ def endorse_skill():
 def tags():
     search = request.form.get('search', '')
     if search:
-        tags = find_tags_by_search(search.lower().strip())
+        tags = find_tags_by_search(search.strip())
     else:
         tags = get_tags()
 
@@ -397,7 +388,7 @@ def tag(name):
                 skilled = True
 
     tasks = find_task_by_tag(name)
-    transfers = find_frequent_transfer_by_tag(name)
+    transfers = get_transferorCount_by_tag(name)
 
     tags_tasks = dict()       
     shared_tasks = dict()
@@ -411,9 +402,14 @@ def tag(name):
     return render_template("tag.html",  related_tags=related_tags, all_persons=all_persons, skilled=skilled, follows=follows, worked_tags_other=worked_tags_other,helped_tags_other=helped_tags_other, skilled_tags_other=skilled_tags_other, followed_tags_other=followed_tags_other, transfers=transfers, tag=tag, persons_following=persons_following,persons_skilled=persons_skilled,tasks=tasks,tags_tasks=tags_tasks,shared_tasks=shared_tasks)
 
 
-@app.errorhandler(404)
+@app.errorhandler(Exception)
 def page_not_found(error):
-    return render_template('404.html'), 404
+    try:
+        status_code = error.code
+        msg = error.description
+    except:
+        raise error
+    return render_template('error.html', status_code=status_code, msg=msg)
 
 @app.route("/admin_tags", methods=["POST"])
 def admin_tags():
