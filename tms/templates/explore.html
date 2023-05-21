@@ -8,7 +8,7 @@
         <div class="col">
             <div class="card">
                 <h6 class="card-header">
-                    Most Followed
+                    Common Interests
 
                 </h6>
                 <div class="card-body">
@@ -47,7 +47,7 @@
         <div class="col">
             <div class="card">
                 <h6 class="card-header">
-                    Most Worked On
+                    Common Tasks
 
                 </h6>
                 <div class="card-body">
@@ -65,7 +65,7 @@
         </div>
         <div class="col">
             <div class="card">
-                <h6 class="card-header">Recently Added Tags</h6>
+                <h6 class="card-header">Recently Added</h6>
                 <div class="card-body">
                     {% for tag in recently_added_tags %}
                     <a class="link-light" href="/tags/{{ tag['t']['name'] }}">
@@ -89,11 +89,11 @@
         <div class="col">
             <div class="card" style="height: 400px;">
                 <h6 class="card-header">
-                    Frequent Knowledge Transfers
+                    Common Knowledge Transfers
 
                 </h6>
                 <div class="card-body">
-                    {% for tx in transaction_tag_count %}
+                    {% for tx in transfer_tag_count %}
 
                     <a class="link-light" href="/tags/{{ tx.t.name }}">
                         <span class="badge bg-transfer"> {{ tx.t.name }} <span class="badge text-bg-light">{{ tx.anz }}
@@ -108,13 +108,13 @@
         <div class="col">
             <div class="card" style="height: 400px;">
                 <h6 class="card-header">
-                    Last Knowledge Transfers
+                    Recent Knowledge Transfers
                 </h6>
 
                 <div class="card-body">
                     <ul class="list-group list-group-flush">
 
-                        {% for tx in transactions %}
+                        {% for tx in transfers %}
                         <li class="list-group-item" style="padding: 0px; padding-bottom: 2px; padding-top: 2px;">
 
                             <span style="font-size: smaller;"><b>{{tx.date}}</b></span><a class="link-light" href="/tags/{{tx.t.name}}"> <span class="badge bg-transfer">{{tx.t.name}}</span></a>

@@ -34,7 +34,7 @@
         <div class="col"> <!--Interest-->
             <div class="card">
                 <h6 class="card-header">
-                    Following
+                    Interests
                     {% if is_user%}
                     <!-- Button trigger modal -->
                     <a href="#" class="link-dark" data-bs-toggle="modal" data-bs-target="#addtag">
@@ -52,32 +52,22 @@
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Follow Tag</h1>
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Add Interest</h1>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <form method="POST" action="{{ url_for('add_tag', rel_type='follows_multiple') }}">
+                                    <form method="POST" action="{{ url_for('add_tag', rel_type='follows') }}">
 
                                         <div class="mb-3">
-                                            <label for="tags" class="form-label">Select Tag(s) <code>(CTRL / SHIFT for multiple selection)</code></label>
-                                            <select name="tags" id="tags" class="form-select" multiple
-                                                aria-label="multiple select" size="15">
-                                                {% for tag in all_tags %}
-                                                <option value="{{ tag.t.name }}">{{tag.t.name}}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="singletag" class="form-label">Type in a (new) Tag</label>
-                                            <input class="form-control" list="datalistOptions" id="singletag" name="singletag" placeholder="Type ...">
+                                            <input class="form-control" list="datalistOptions" id="tag" name="tag" placeholder="Type ...">
                                             <datalist id="datalistOptions">
                                                 {% for tag in all_tags %}
                                                 <option value="{{ tag.t.name }}">
                                                 {% endfor %}
                                             </datalist>
                                         </div>
-                                        <button type="submit" class="btn btn-dark mb-3">Follow</button>
+                                        <button type="submit" class="btn btn-dark mb-3">Add</button>
                                         <button type="button" class="btn btn-light mb-3" data-bs-dismiss="modal">Close</button>
 
 
@@ -106,7 +96,7 @@
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Unfollow Tag(s)</h1>
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Remove Interest(s)</h1>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
                                 </div>
@@ -124,13 +114,13 @@
                                         </div>
                                         {% endfor %}
                                         <p>
-                                            <button class="btn btn-danger" type="submit">Unfollow</button>
+                                            <button class="btn btn-danger" type="submit">Remove</button>
                                         </p>
                                     </form>
                                     {% endif %}
                                     {% if not tags %}
                                     <p style="font-size: smaller; font-style: italic;">
-                                        No tags to unfollow.
+                                        No interests to remove.
                                     </p>
                                     {% endif %}
                                 </div>
@@ -148,24 +138,9 @@
                 </h6>
 
                 <div class="card-body">
-                    <!-- TODO ganz entfernen?
-                    {% if is_user%}
-                    <form method="POST" action="{{ url_for('add_tag', rel_type='follows') }}">
-                        <div class="input-group input-group-sm mb-3">
-                            <input type="text" class="form-control"
-                                aria-label="Sizing example input"
-                                aria-describedby="inputGroup-sizing-sm" name="tag" required="required" id="followed_tags">
-                                
-                            <span class="input-group-text" id="inputGroup-sizing-sm"><button
-                                    class="btn btn-sm" type="submit">Follow</button></span>
-                                    
-                        </div>
-                    </form>
-                    {% endif %}
-                    -->
                     {% if not tags %}
                     <p style="font-size: smaller; font-style: italic;">
-                        No followed tags.
+                        No interests.
                     </p>
                     {% endif %}
                     <p class="card-text">
@@ -212,13 +187,12 @@
                                     <form method="POST" action="{{ url_for('add_skill') }}">
                                         <div class="mb-3">
                                             <label for="tag" class="form-label">Tag</label>
-                                            <select name="tag" id="tag" class="form-select" aria-label="tag"
-                                                required="required">
-                                                <option value="" selected>-- select --</option>
-                                                {% for tag in all_tags%}
-                                                <option value="{{tag.t.name}}">{{tag.t.name}}</option>
+                                            <input class="form-control" list="datalistOptions" id="tag" name="tag" placeholder="Type ...">
+                                            <datalist id="datalistOptions">
+                                                {% for tag in all_tags %}
+                                                <option value="{{ tag.t.name }}">
                                                 {% endfor %}
-                                            </select>
+                                            </datalist>
                                         </div>
                                         <div class="mb-3">
                                             <label for="desc" class="form-label">Description</label>
@@ -333,13 +307,13 @@
                 </div>
             </div>
         </div>
-        <div class="col"> <!--Transactions-->
+        <div class="col"> <!--transfers-->
             <div class="card" style="width: 550px;">
                 <h6 class="card-header">
                     Knowledge Transfers
                     {% if is_user%}
                     <!-- Button trigger modal -->
-                    <a href="#" class="link-dark" data-bs-toggle="modal" data-bs-target="#addtransaction">
+                    <a href="#" class="link-dark" data-bs-toggle="modal" data-bs-target="#addtransfer">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                             class="bi bi-plus-square" viewBox="0 0 16 16">
                             <path
@@ -349,17 +323,17 @@
                         </svg>
                     </a>
                     <!-- Modal -->
-                    <div class="modal fade" id="addtransaction" tabindex="-1" aria-labelledby="exampleModalLabel"
+                    <div class="modal fade" id="addtransfer" tabindex="-1" aria-labelledby="exampleModalLabel"
                         aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Transfer knowledge</h1>
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Add knowledge transfer</h1>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <form method="POST" action="{{ url_for('add_transaction') }}">
+                                    <form method="POST" action="{{ url_for('add_transfer') }}">
                                         <input type="hidden" class="form-control" id="from" name="from"
                                             value="{{ session['user'] }}">
 
@@ -377,13 +351,12 @@
                                         </div>
                                         <div class="mb-3">
                                             <label for="tag" class="form-label">Tag</label>
-                                            <select name="tag" id="tag" class="form-select" aria-label="tag"
-                                                required="required">
-                                                <option value="" selected>-- select --</option>
-                                                {% for tag in all_tags%}
-                                                <option value="{{tag.t.name}}">{{tag.t.name}}</option>
+                                            <input class="form-control" list="datalistOptions" id="tag" name="tag" placeholder="Type ...">
+                                            <datalist id="datalistOptions">
+                                                {% for tag in all_tags %}
+                                                <option value="{{ tag.t.name }}">
                                                 {% endfor %}
-                                            </select>
+                                            </datalist>
                                         </div>
                                         <div class="mb-3">
                                             <label for="date" class="form-label">Date</label>
@@ -407,12 +380,12 @@
                 </h6>
                 <div class="card-body">
                     <ul class="list-group list-group-flush">
-                        {% if not transactions %}
+                        {% if not transfers %}
                         <p style="font-size: smaller; font-style: italic;">
-                            No transactions available.
+                            No transfers available.
                         </p>
                         {% endif %}
-                        {% for tx in transactions %}
+                        {% for tx in transfers %}
                         <li class="list-group-item" style="padding: 0px; padding-bottom: 2px; padding-top: 2px;">
 
                             <span style="font-size: smaller;"><b>{{tx.date}}</b></span><a class="link-light"

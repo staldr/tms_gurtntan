@@ -17,7 +17,7 @@
             <form method="POST" action="{{ url_for('add_tag', rel_type='follows') }}">
                 <input type="hidden" name="tag" value="{{ tag.name }} " id="followed_tags">
                 <button class="btn btn-sm btn-dark" type="submit" method="POST"
-                    action="{{ url_for('add_tag', rel_type='follows') }}">Follow Tag</button>
+                    action="{{ url_for('add_tag', rel_type='follows') }}">Add Interest</button>
             </form>
 
             {% endif %}
@@ -27,7 +27,7 @@
             <form method="POST" action="{{ url_for('remove_tag', rel_type='follows') }}">
                 <input type="hidden" name="tag" value="{{ tag.name }} ">
                 <button class="btn btn-sm btn-dark" type="submit" method="POST"
-                    action="{{ url_for('add_tag', rel_type='follows') }}">Unfollow Tag</button>
+                    action="{{ url_for('add_tag', rel_type='follows') }}">Remove Interest</button>
             </form>
 
             {% endif %}
@@ -80,24 +80,24 @@
         <div class="col">
             {% if session['user'] %}
             <!-- Button trigger modal -->
-            <a href="#" class="link-dark" data-bs-toggle="modal" data-bs-target="#addtransaction">
+            <a href="#" class="link-dark" data-bs-toggle="modal" data-bs-target="#addtransfer">
                 <form method="POST" action="{{ url_for('remove_tag', rel_type='has') }}">
                     <input type="hidden" name="tag" value="{{ tag.name }} ">
                     <button class="btn btn-sm btn-dark" type="submit" method="POST"
-                        action="{{ url_for('remove_tag', rel_type='has') }}">Transfer knowledge</button>
+                        action="{{ url_for('remove_tag', rel_type='has') }}">Transfer Knowledge</button>
                 </form>
             </a>
             <!-- Modal -->
-            <div class="modal fade" id="addtransaction" tabindex="-1" aria-labelledby="exampleModalLabel"
+            <div class="modal fade" id="addtransfer" tabindex="-1" aria-labelledby="exampleModalLabel"
                 aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="exampleModalLabel">Transfer knowledge</h1>
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Transfer Knowledge</h1>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <form method="POST" action="{{ url_for('add_transaction') }}">
+                            <form method="POST" action="{{ url_for('add_transfer') }}">
                                 <div class="mb-3">
                                     <input type="hidden" class="form-control" id="from" name="from"
                                         value="{{ session['user'] }}">
@@ -145,11 +145,11 @@
     <div class="row align-items-start">
         <div class="col">
             <div class="card">
-                <h6 class="card-header">Followers</h6>
+                <h6 class="card-header">Interested People</h6>
                 <div class="card-body">
                     {% if not persons_following%}
                     <p style="font-size: smaller; font-style: italic;">
-                        No followers found.
+                        No interested people found.
                     </p>
                     {%endif%}
                     {% for person in persons_following%}
@@ -195,14 +195,14 @@
     -->
         <div class="col">
             <div class="card">
-                <h6 class="card-header">Knowledge Transfers</h6>
+                <h6 class="card-header">Knowledge Transferors</h6>
                 <div class="card-body">
-                    {% if not transactions%}
+                    {% if not transfers%}
                     <p style="font-size: smaller; font-style: italic;">
-                        No knowledge was transferred yet.
+                        No knowledge transferors found..
                     </p>
                     {%endif%}
-                    {% for tx in transactions%}
+                    {% for tx in transfers%}
                     <a class="link-light" href="/persons/{{tx.p_from.email}}">
                         <span class="badge rounded-pill bg-person">{{tx.p_from.last_name}}, {{tx.p_from.first_name}}
                             <span class="badge text-bg-dark"> {{ tx.anz }}
@@ -227,7 +227,7 @@
                     <h2 class="accordion-header">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                             data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
-                            People are also following:
+                            People are also interested in:
                         </button>
                     </h2>
                     <div id="flush-collapseOne" class="accordion-collapse collapse "

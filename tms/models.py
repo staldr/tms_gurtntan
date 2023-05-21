@@ -189,7 +189,7 @@ def find_connected_tags_by_name(name, rel_type):
     elif rel_type == "skilled":
         query = "match (t:tag)-[:includes]-(:skill)-[:has]-(p:person)-[:has]-(:skill)-[:includes]-(t2:tag) where t.name = $name"
     elif rel_type == "helped":
-        query = "match (t:tag)-[:includes]-(:transaction)<-[:from]-(:person)-[:from]->(:transaction)-[:includes]-(t2:tag) where t.name = $name"
+        query = "match (t:tag)-[:includes]-(:transfer)<-[:from]-(:person)-[:from]->(:transfer)-[:includes]-(t2:tag) where t.name = $name"
     elif rel_type == "worked":
         query = "match (t:tag)-[:includes]-(:task)<-[:works_on]-(:person)-[:works_on]->(:task)-[:includes]-(t2:tag) where t.name = $name"
 
@@ -276,15 +276,15 @@ def get_recently_added_tags():
         data = result.data()
         return data
 # TODO: Transaction in Transfer umbenennen.
-def get_transaction():
-    query = "match (p2:person)<-[r2:to]-(tx:transaction)<-[r:from]-(p1:person), (tx)-[r3:includes]->(t:tag) return tostring(tx.date) as date, p1 as p_from, p2 as p_to, t order by tx.date desc LIMIT 15"
+def get_transfer():
+    query = "match (p2:person)<-[r2:to]-(tx:transfer)<-[r:from]-(p1:person), (tx)-[r3:includes]->(t:tag) return tostring(tx.date) as date, p1 as p_from, p2 as p_to, t order by tx.date desc LIMIT 15"
     with tms_db.session() as tx:
         result = tx.run(query)
         data = [record for record in result]
         return data
     
-def get_transaction_tag_count():
-    query = "match (:transaction)-[r3:includes]->(t:tag) return count(t) as anz, t order by count(t) desc LIMIT 25"  
+def get_transfer_tag_count():
+    query = "match (:transfer)-[r3:includes]->(t:tag) return count(t) as anz, t order by count(t) desc LIMIT 25"  
     with tms_db.session() as tx:
         result = tx.run(query)
         data = [record for record in result]
@@ -296,22 +296,22 @@ def get_persons():
         data = result.data()
         return data
     
-def find_transaction_by_email(email):
-    query = "match (p2:person)<-[:to]-(tx:transaction)<-[:from]-(p1:person), (tx)-[:includes]->(t:tag) where p2.email = $email or p1.email = $email return tx.date as date, p1 as p_from, p2 as p_to, t order by tx.date desc"
+def find_transfer_by_email(email):
+    query = "match (p2:person)<-[:to]-(tx:transfer)<-[:from]-(p1:person), (tx)-[:includes]->(t:tag) where p2.email = $email or p1.email = $email return tx.date as date, p1 as p_from, p2 as p_to, t order by tx.date desc"
     with tms_db.session() as tx:
         result = tx.run(query, email=email)
         data = [record for record in result]
         return data
     
-def find_frequent_transaction_by_tag(tag):
-    query = "match (t:tag)<-[r3:includes]-(tx:transaction)<-[r:from]-(p1:person) where t.name = $tag return count(tx) as anz, p1 as p_from"
+def find_frequent_transfer_by_tag(tag):
+    query = "match (t:tag)<-[r3:includes]-(tx:transfer)<-[r:from]-(p1:person) where t.name = $tag return count(tx) as anz, p1 as p_from"
     with tms_db.session() as tx:
         result = tx.run(query, tag=tag)
         data = [record for record in result]
         return data    
     
-def find_transaction_by_tag(tag):
-    query = "match (t:tag)<-[r3:includes]-(tx:transaction)<-[r:from]-(p1:person) where t.name = $tag return count(p1) as anz, tx.date as date, p1 as p_from, t order by count(p1) desc, p1.last_name asc"
+def find_transfer_by_tag(tag):
+    query = "match (t:tag)<-[r3:includes]-(tx:transfer)<-[r:from]-(p1:person) where t.name = $tag return count(p1) as anz, tx.date as date, p1 as p_from, t order by count(p1) desc, p1.last_name asc"
     with tms_db.session() as tx:
         result = tx.run(query, tag=tag)
         data = [record for record in result]

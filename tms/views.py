@@ -102,7 +102,7 @@ def person(email):
     tags = find_tags_by_email(email)
     tasks = find_tasks_by_email(email)
     skills = find_skills_by_email(email)
-    transactions = find_transaction_by_email(email)
+    transfers = find_transfer_by_email(email)
     all_persons = get_persons()
     all_tags = get_tags()
     
@@ -128,7 +128,7 @@ def person(email):
         tags_tasks[elementid] = tags_s
 
     #return persons
-    return render_template("person.html", all_tags=all_tags, endorsed_skill=endorsed_skill,all_persons=all_persons,transactions=transactions, person=person, tags=tags, tasks=tasks,skills=skills, shared_skills=shared_skills,shared_tasks=shared_tasks,tags_tasks=tags_tasks, is_user=is_user, count_skills=count_skills)
+    return render_template("person.html", all_tags=all_tags, endorsed_skill=endorsed_skill,all_persons=all_persons,transfers=transfers, person=person, tags=tags, tasks=tasks,skills=skills, shared_skills=shared_skills,shared_tasks=shared_tasks,tags_tasks=tags_tasks, is_user=is_user, count_skills=count_skills)
 
 @app.route("/logout")
 def logout():
@@ -143,20 +143,21 @@ def explore():
     common_skills = get_popular_tags("has")
     #uncommon_skills = get_unpopular_tags("has")
     recently_added_tags = get_recently_added_tags() 
-    transactions = get_transaction()
-    transaction_tag_count = get_transaction_tag_count()
-    return render_template("explore.html", transaction_tag_count=transaction_tag_count, recently_added_tags=recently_added_tags, transactions=transactions, followed_tags=followed_tags,worked_on_tags=worked_on_tags,common_skills=common_skills)
+    transfers = get_transfer()
+    transfer_tag_count = get_transfer_tag_count()
+    return render_template("explore.html", transfer_tag_count=transfer_tag_count, recently_added_tags=recently_added_tags, transfers=transfers, followed_tags=followed_tags,worked_on_tags=worked_on_tags,common_skills=common_skills)
 
 @app.route("/add_tag", methods=["POST"])
 def add_tag():
     email = session['user']
     rel_type = request.args.get('rel_type')
-    
+    '''
     if rel_type == "follows_multiple":
         tags = request.form.getlist("tags")
         tags.append(request.form.get("singletag"))
         rel_type = "follows"
-    elif rel_type == "create_single":
+    '''
+    if rel_type == "create_single":
         tag = request.form.get("singletag")
         result = create_tag(tag)
         if result == True:
@@ -188,9 +189,6 @@ def add_tag():
             msg = str(counter) + "/" + str(total) + " Tag(s) successfully created. " + str(total-counter) + " Tag(s) already existed."
             flash(msg)
             return redirect(request.referrer)
-
-
-
 
     else:
         tags = []
@@ -316,8 +314,8 @@ def add_task():
 
     return redirect(request.referrer)
     
-@app.route("/add_transaction", methods=["POST"])
-def add_transaction():
+@app.route("/add_transfer", methods=["POST"])
+def add_transfer():
     p_from = request.form["from"]
     p_to = request.form["to"]
     tag = request.form["tag"].lower().strip()
@@ -328,7 +326,7 @@ def add_transaction():
         with t
         match (p_to:person) where p_to.email = $p_to
         match (p_from:person) where p_from.email = $p_from
-        create (tx:transaction {date: $date, created: datetime(), last_modified: datetime()})
+        create (tx:transfer {date: $date, created: datetime(), last_modified: datetime()})
         create (p_to)<-[:to]-(tx)<-[:from]-(p_from)
         create (tx)-[:includes]->(t)
         return tx
@@ -399,7 +397,7 @@ def tag(name):
                 skilled = True
 
     tasks = find_task_by_tag(name)
-    transactions = find_frequent_transaction_by_tag(name)
+    transfers = find_frequent_transfer_by_tag(name)
 
     tags_tasks = dict()       
     shared_tasks = dict()
@@ -410,7 +408,7 @@ def tag(name):
         tags_s = find_tags_by_taskid(elementid)
         tags_tasks[elementid] = tags_s
 
-    return render_template("tag.html",  related_tags=related_tags, all_persons=all_persons, skilled=skilled, follows=follows, worked_tags_other=worked_tags_other,helped_tags_other=helped_tags_other, skilled_tags_other=skilled_tags_other, followed_tags_other=followed_tags_other, transactions=transactions, tag=tag, persons_following=persons_following,persons_skilled=persons_skilled,tasks=tasks,tags_tasks=tags_tasks,shared_tasks=shared_tasks)
+    return render_template("tag.html",  related_tags=related_tags, all_persons=all_persons, skilled=skilled, follows=follows, worked_tags_other=worked_tags_other,helped_tags_other=helped_tags_other, skilled_tags_other=skilled_tags_other, followed_tags_other=followed_tags_other, transfers=transfers, tag=tag, persons_following=persons_following,persons_skilled=persons_skilled,tasks=tasks,tags_tasks=tags_tasks,shared_tasks=shared_tasks)
 
 
 @app.errorhandler(404)
