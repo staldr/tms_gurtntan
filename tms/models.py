@@ -111,7 +111,7 @@ def find_person_by_tag(name,rel_type):
     query_hyperedge = "includes]-(n)-[r2:"
     query_end = "]-(p:person) WHERE t.name = $name RETURN DISTINCT p ORDER BY p.last_name"
 
-    if rel_type == "follows":
+    if rel_type == "is_interested_in":
         query = query_start + rel_type + query_end
     elif rel_type == "works_on":
         query = query_start + query_hyperedge + rel_type + query_end
@@ -164,7 +164,7 @@ def find_task_by_tag(tag):
       
 
 def find_tags_by_email(email):
-    query = "MATCH (p:person)-[r:follows]->(t:tag) where p.email = $email return t order by t.name"
+    query = "MATCH (p:person)-[r:is_interested_in]->(t:tag) where p.email = $email return t order by t.name"
     with tms_db.session() as session:
         try:
             result = session.run(query, email=email)
@@ -248,7 +248,7 @@ def find_tags_by_taskid(elementid):
             abort(500, msg) 
     
 def find_connected_tags_by_name(name, rel_type):
-    if rel_type == "follows":
+    if rel_type == "is_interested_in":
         query = "match (t:tag)-[r]-(p:person)-[r2]-(t2:tag) where t.name = $name"
     elif rel_type == "skilled":
         query = "match (t:tag)-[:includes]-(:skill)-[:has]-(p:person)-[:has]-(:skill)-[:includes]-(t2:tag) where t.name = $name"
@@ -398,11 +398,55 @@ def get_transfer():
             msg = str(e)
             abort(500, msg)
     
-def get_transfer_tag_count():
-    query = "match (:transfer)-[r3:includes]->(t:tag) return count(t) as anz, t order by count(t) desc LIMIT 25"  
+def get_transfer_tag_count(limit):
+    query = "match (:transfer)-[r3:includes]->(t:tag) return count(t) as anz, t order by count(t) desc LIMIT $limit"  
     with tms_db.session() as tx:
         try:
-            result = tx.run(query)
+            result = tx.run(query, limit=limit)
+            data = [record for record in result]
+            return data
+        except Exception as e:
+            msg = str(e)
+            abort(500, msg)
+
+def get_top_transferor(limit):
+    query = "match (:transfer)<-[r:from]-(p:person) return count(r) as anz, p order by count(r) desc LIMIT $limit"  
+    with tms_db.session() as tx:
+        try:
+            result = tx.run(query, limit=limit)
+            data = [record for record in result]
+            return data
+        except Exception as e:
+            msg = str(e)
+            abort(500, msg)
+
+def get_ongoing_task():
+    query = "match (t:task) where t.end_date is null or t.end_date > date() return t,elementid(t) order by t.start_date desc"  
+    with tms_db.session() as session:
+        try:
+            result = session.run(query)
+            data = result.data()
+            return data
+        except Exception as e:
+            msg = str(e)
+            abort(500, msg)
+
+def get_top_skilled(limit):
+    query = "match (:person)-[r:endorses]->(:skill)<-[:has]-(p:person) return count(r) as anz, p order by count(r) desc LIMIT $limit"  
+    with tms_db.session() as tx:
+        try:
+            result = tx.run(query, limit=limit)
+            data = [record for record in result]
+            return data
+        except Exception as e:
+            msg = str(e)
+            abort(500, msg)
+
+def get_top_working(limit):
+    query = "match (p:person)-[r:works_on]->(:task) return count(r) as anz, p order by count(r) desc LIMIT $limit"  
+    with tms_db.session() as tx:
+        try:
+            result = tx.run(query, limit=limit)
             data = [record for record in result]
             return data
         except Exception as e:
@@ -456,7 +500,7 @@ def find_transfer_by_tag(tag):
 # TODO: return auserhalb session?
     
 def get_popular_tags(rel_type):
-    if rel_type == "follows":
+    if rel_type == "is_interested_in":
             query = "MATCH (t:tag)-[r:" + rel_type + "]-(m) RETURN t.name as name, count(r) as anz ORDER BY count(r) DESC,t.name asc LIMIT 5"
     else:
         query = "MATCH (t:tag)-[r:includes]-(m) where (m)-[:" + rel_type + "]-() RETURN t.name as name, count(r) as anz ORDER BY count(r) DESC,t.name asc LIMIT 5"
@@ -528,6 +572,7 @@ def create_tag(name):
                 CREATE (t:tag {
                         name: $name
                         ,created: datetime()
+                        ,last_modified: datetime()
                         })
                 '''
         with tms_db.session() as session:

@@ -40,9 +40,11 @@ def register():
         if response == False:
             flash("Email address already exists.")
             return render_template("register.html")
-        else:
+        elif response == True:
             flash("Successfully registrated. Please log in.")
             return redirect(url_for("login")) 
+        else:
+            return "Wrong"
         
     elif request.method == "GET":
         return render_template("register.html")
@@ -127,7 +129,6 @@ def person(email):
         tags_s = find_tags_by_taskid(elementid)
         tags_tasks[elementid] = tags_s
 
-    #return persons
     return render_template("person.html", all_tags=all_tags, endorsed_skill=endorsed_skill,all_persons=all_persons,transfers=transfers, person=person, tags=tags, tasks=tasks,skills=skills, shared_skills=shared_skills,shared_tasks=shared_tasks,tags_tasks=tags_tasks, is_user=is_user, count_skills=count_skills)
 
 @app.route("/logout")
@@ -138,25 +139,38 @@ def logout():
 
 @app.route("/explore")
 def explore():
-    followed_tags = get_popular_tags("follows")
+    limit = 5
+
+    followed_tags = get_popular_tags("is_interested_in")
     worked_on_tags = get_popular_tags("works_on")
     common_skills = get_popular_tags("has")
     #uncommon_skills = get_unpopular_tags("has")
     recently_added_tags = get_recently_added_tags() 
     transfers = get_transfer()
-    transfer_tag_count = get_transfer_tag_count()
-    return render_template("explore.html", transfer_tag_count=transfer_tag_count, recently_added_tags=recently_added_tags, transfers=transfers, followed_tags=followed_tags,worked_on_tags=worked_on_tags,common_skills=common_skills)
+    transfer_tag_count = get_transfer_tag_count(limit)
+
+    top_transferor = get_top_transferor(limit)
+    top_skilled = get_top_skilled(limit)
+    top_working = get_top_working(limit)
+
+    ongoing_task = get_ongoing_task()
+
+    tags_tasks = dict()       
+    shared_tasks = dict()
+    for task in ongoing_task:
+        elementid = task['elementid(t)']
+        persons = find_persons_by_taskid(elementid)
+        shared_tasks[elementid] = persons
+        tags_s = find_tags_by_taskid(elementid)
+        tags_tasks[elementid] = tags_s
+
+    return render_template("explore.html", tags_tasks=tags_tasks,shared_tasks=shared_tasks,ongoing_task=ongoing_task, top_working=top_working, top_skilled=top_skilled, top_transferor=top_transferor, transfer_tag_count=transfer_tag_count, recently_added_tags=recently_added_tags, transfers=transfers, followed_tags=followed_tags,worked_on_tags=worked_on_tags,common_skills=common_skills)
 
 @app.route("/add_tag", methods=["POST"])
 def add_tag():
     email = session['user']
     rel_type = request.args.get('rel_type')
-    '''
-    if rel_type == "follows_multiple":
-        tags = request.form.getlist("tags")
-        tags.append(request.form.get("singletag"))
-        rel_type = "follows"
-    '''
+
     if rel_type == "create_single":
         tag = request.form.get("singletag")
         result = create_tag(tag)
@@ -205,7 +219,7 @@ def add_tag():
 def remove_tag():
     rel_type = request.args.get('rel_type')
     email = session['user']
-    if rel_type == "follows":
+    if rel_type == "is_interested_in":
         checked_values = []
        
         for key in request.form:
@@ -219,13 +233,13 @@ def remove_tag():
         
     if request.method == "POST":
         with tms_db.session() as tx:
-            if rel_type == "follows":
+            if rel_type == "is_interested_in":
                 query = "match (t:tag)<-[r:{}]-(p:person) where t.name = $tag and p.email = $email delete r".format(rel_type)
                 for tag in checked_values:
                     try:        
                         tx.run(query, tag=tag, email=email)
                     except:
-                        return abort(500) # TODO: Exception Handling ausbauen
+                        return abort(500)
             elif rel_type == "has":
                 query = "match (t:tag)<-[r1:includes]-(s:skill)<-[r2:has]-(p:person) where t.name = $tag and p.email = $email delete r1, r2, s"
                 tx.run(query, tag=tag, email=email)
@@ -241,7 +255,7 @@ def remove_skill():
             try:        
                 tx.run(query, tag=tag, email=email)
             except:
-                return abort(500) # TODO: Exception Handling ausbauen
+                return abort(500) 
         return redirect(request.referrer)
     
 @app.route("/add_skill", methods=["POST"])
@@ -253,8 +267,7 @@ def add_skill():
     query = '''
         MERGE (t:tag {name: $tag})
         ON CREATE SET t.created = datetime(), t.last_modified = datetime()
-        MERGE (s:skill {description: $desc})
-        ON CREATE SET s.created = datetime(), s.last_modified = datetime()
+        CREATE (s:skill {description: $desc, created: datetime(), last_modified: datetime()})
         with s,t
         MATCH (p:person) WHERE p.email = $email
         MERGE (p)-[:has]->(s)-[:includes]->(t)
@@ -366,13 +379,13 @@ def tag(name):
         abort(404)
     
     all_persons = get_persons()
-    followed_tags_other = find_connected_tags_by_name(name, "follows")
+    followed_tags_other = find_connected_tags_by_name(name, "is_interested_in")
     skilled_tags_other = find_connected_tags_by_name(name, "skilled")
     helped_tags_other = find_connected_tags_by_name(name, "helped")
     worked_tags_other = find_connected_tags_by_name(name, "worked")
     related_tags = find_related_tags_by_name(name)
 
-    persons_following = find_person_by_tag(name,"follows")
+    persons_following = find_person_by_tag(name,"is_interested_in")
 
     follows = False
     if "user" in session:

@@ -1,13 +1,17 @@
 {% extends "base.html" %}
 {% block title %}People{% endblock %}
+
+{% block subtitle %}
+People
+{% endblock %}
+
 {% block content %}
 
 <div class="container text-left">
-    <h2 style="padding-bottom: 15px; padding-top: 20px;">People</h2>
     <div class="row align-items-start">
 
         <form method="POST" action="{{ url_for('people') }}">
-            <div class="input-group input-group-sm mb-3">
+            <div class="input-group input-group-sm mb-3" style="width: 25%;"    >
                 <input type="text" class="form-control"
                     aria-label="Sizing example input"
                     aria-describedby="inputGroup-sizing-sm" name="search" id="search" value="{{ search }}">
@@ -17,6 +21,11 @@
                         
             </div>
         </form>
+            {% if not persons %}
+            <p style="font-size: smaller; font-style: italic;">
+                No search results.
+            </p>
+            {% endif %}
             {% for person in persons%}
 
                 <a class="link-light" href="/persons/{{person.p.email}}">

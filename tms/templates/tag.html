@@ -1,5 +1,11 @@
 {% extends "base.html" %}
 {% block title %}{{ tag.name }}{% endblock %}
+
+{% block subtitle %}
+<span class="badge bg-tag">{{ tag.name }}</span>
+{% endblock %}
+
+
 {% block content %}
 
 <!-- Title incl. Action Buttons -->
@@ -7,27 +13,22 @@
 <div class="container text-left">
     <div class="row align-items-start">
         <div class="col">
-            <h2 style="padding-bottom: 15px; padding-top: 20px;"><span class="badge bg-tag">{{ tag.name }}</span></h2>
-        </div>
-    </div>
-    <div class="row align-items-start">
-        <div class="col">
             {% if session['user'] and not follows %}
 
-            <form method="POST" action="{{ url_for('add_tag', rel_type='follows') }}">
+            <form method="POST" action="{{ url_for('add_tag', rel_type='is_interested_in') }}">
                 <input type="hidden" name="tag" value="{{ tag.name }} " id="followed_tags">
                 <button class="btn btn-sm btn-dark" type="submit" method="POST"
-                    action="{{ url_for('add_tag', rel_type='follows') }}">Add Interest</button>
+                    action="{{ url_for('add_tag', rel_type='is_interested_in') }}">Add Interest</button>
             </form>
 
             {% endif %}
 
             {% if session['user'] and follows %}
 
-            <form method="POST" action="{{ url_for('remove_tag', rel_type='follows') }}">
+            <form method="POST" action="{{ url_for('remove_tag', rel_type='is_interested_in') }}">
                 <input type="hidden" name="tag" value="{{ tag.name }} ">
-                <button class="btn btn-sm btn-dark" type="submit" method="POST"
-                    action="{{ url_for('add_tag', rel_type='follows') }}">Remove Interest</button>
+                <button class="btn btn-sm btn-danger" type="submit" method="POST"
+                    action="{{ url_for('add_tag', rel_type='is_interested_in') }}">Remove Interest</button>
             </form>
 
             {% endif %}
@@ -69,10 +70,8 @@
             {% endif %}
             {% if session['user'] and skilled %}
 
-            <form method="POST" action="{{ url_for('remove_tag', rel_type='has') }}">
-                <input type="hidden" name="tag" value="{{ tag.name }} ">
-                <button class="btn btn-sm btn-dark" type="submit" method="POST"
-                    action="{{ url_for('remove_tag', rel_type='has') }}">Remove Skill</button>
+            <form method="POST" action="{{ url_for('remove_skill', tag=tag.name)  }}">
+                <button class="btn btn-sm btn-danger" type="submit">Remove Skill</button>
             </form>
 
             {% endif %}
@@ -106,7 +105,7 @@
                                     <select name="to" id="to" class="form-select" aria-label="Default select example"
                                         required="required">
                                         <option value="" selected>-- select --</option>
-                                        
+
                                         {% for person in all_persons%}
                                         <option value="{{person.p.email}}">{{person.p.last_name}},
                                             {{person.p.first_name}} </option>
@@ -179,23 +178,9 @@
                 </div>
             </div>
         </div>
-        <!--
         <div class="col">
             <div class="card">
-                <h6 class="card-header">Who is working on {{ tag.name }}?</h6>
-                <ul class="list-group">
-                    {% for person in persons_working%}
-                    <li class="list-group-item">
-                        <a href="/person?email={{person.p.email}}">{{person.p.last_name}}, {{person.p.first_name}} </a>
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-    -->
-        <div class="col">
-            <div class="card">
-                <h6 class="card-header">Knowledge Transferors</h6>
+                <h6 class="card-header">Knowledge Transferring People</h6>
                 <div class="card-body">
                     {% if not transfers%}
                     <p style="font-size: smaller; font-style: italic;">
@@ -282,7 +267,7 @@
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                             data-bs-target="#flush-collapseThree" aria-expanded="false"
                             aria-controls="flush-collapseThree">
-                            People are also transferring knowledge about:
+                            People are also transferring knowledge in:
                         </button>
                     </h2>
                     <div id="flush-collapseThree" class="accordion-collapse collapse"

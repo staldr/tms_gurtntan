@@ -1,52 +1,47 @@
 {% extends "base.html" %}
 {% block title %}Register{% endblock %}
+
+{% block subtitle %}
+Register
+{% endblock %}
+
 {% block content %}
-<div class="col-sm-3 text-left">
-    <div class="row justify-content-start">
+<div class="col d-flex justify-content-center">
 
-        <h2 style="padding-bottom: 15px; padding-top: 20px;">Register</h2>
+    <form action="{{ url_for('register') }}" method="post">
 
-        <form action="{{ url_for('register') }}" method="post">
-
-            <div class="col-12">
-                <label class="form-label">Email</label>
-                <input type="email" class="form-control" name="email" required>
-            </div>
-            <div class="col-12">
-                <label class="form-label">Password</label>
-                <input type="password" class="form-control" name="password" required>
-            </div>
-
-            <div class="col-12">
-                <label class="form-label">First Name</label>
-                <input type="text" class="form-control" name="first_name" required>
-            </div>
-            <div class="col-12">
-                <label class="form-label">Last Name</label>
-                <input type="text" class="form-control" name="last_name" required>
-            </div>
-            <div class="col-12">
-                <label class="form-label">Phone</label>
-                <input type="tel" class="form-control" name="phone" required>
-            </div>
-            <div class="col-12">
-                <label class="form-label">Job Title</label>
-                <input type="text" class="form-control" name="job_title" required>
-            </div>
-
-            <div class="col-12" style="padding-top: 10px;">
-                <button type="submit" class="btn btn-light">Register</button>
-            </div>
-
-        </form>
-    </div>
-    <div class="row justify-content-start" style="padding-top: 10px;">
-
-        {% for message in get_flashed_messages() %}
-        <div class="alert alert-info" role="alert">
-            {{ message }}
+        <div class="col-12" style="padding-top: 10px;">
+            <input type="email" class="form-control" name="email" placeholder="Email" required>
         </div>
-        {% endfor %}
+        <div class="col-12" style="padding-top: 10px;">
+            <input type="password" class="form-control" name="password" placeholder="Password" required>
+        </div>
+
+        <div class="col-12" style="padding-top: 10px;">
+            <input type="text" class="form-control" name="first_name" placeholder="First Name" required>
+        </div>
+        <div class="col-12" style="padding-top: 10px;">
+            <input type="text" class="form-control" name="last_name" placeholder="Last Name" required>
+        </div>
+        <div class="col-12" style="padding-top: 10px;">
+            <input type="tel" class="form-control" name="phone" placeholder="Phone" required>
+        </div>
+        <div class="col-12" style="padding-top: 10px;">
+            <input type="text" class="form-control" name="job_title" placeholder="Job Title" required>
+        </div>
+
+        <div class="col-auto" style="padding-top: 10px;">
+            <button type="submit" class="btn btn-dark" style="width:100%;">Register</button>
+        </div>
+
+    </form>
+</div>
+<div class="col d-flex justify-content-center" style="padding-top: 10px;">
+
+    {% for message in get_flashed_messages() %}
+    <div class="alert alert-info" role="alert">
+        {{ message }}
     </div>
+    {% endfor %}
 </div>
 {% endblock %}
