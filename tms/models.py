@@ -1,7 +1,7 @@
 # Classes and functions
-from flask import abort, jsonify, make_response
+from flask import abort
+import bcrypt
 from neo4j import GraphDatabase
-from neo4j.exceptions import Neo4jError
 import os
 from dotenv import load_dotenv
 
@@ -13,31 +13,17 @@ password = os.environ.get('NEO4J_PASSWORD')
 
 tms_db = GraphDatabase.driver(url, auth=(username, password))
 
-def find_by_email(cls, email):
-    with tms_db.session() as session:
-        try:
-            result = session.run("MATCH (p:person) WHERE p.email = $email RETURN p", email=email)
-            record = result.single()
-            if record:
-                person = record['p']
-                return cls(person['first_name'], person['last_name'], person['email'],  person['phone'],  person['job_title'])
-            else:
-                return None
-        except Exception as e:
-            msg = str(e)
-            abort(500, msg)
-
 def create_person(first_name, last_name, email, phone, job_title):
-    if find_by_email(email):
-        return False
-    else:
+
         query = '''
-        CREATE (p:person {
+        MERGE (p:person {
                 first_name: $first_name
                 ,last_name: $last_name
                 ,email: $email
                 ,phone: $phone
                 ,job_title: $job_title
+                ,created: datetime()
+                ,last_modified: datetime()
                 })
         RETURN p
         '''
@@ -48,7 +34,24 @@ def create_person(first_name, last_name, email, phone, job_title):
             except Exception as e:
                 msg = str(e)
                 abort(500, msg)
-    
+
+def create_user(first_name, last_name, email, phone, job_title, password):
+    query = '''
+                    CREATE (u:user {
+                            email: $email
+                            ,password: $password
+                            }) with u
+                    MATCH (p:person) WHERE p.email = $email
+                    CREATE (u)-[:is]->(p)
+                    '''
+    with tms_db.session() as session:
+            try:
+                session.run(query, email=email, password=password, first_name=first_name, last_name=last_name, phone=phone, job_title=job_title)
+                return True
+            except Exception as e:
+                msg = str(e)
+                abort(500, msg)
+
 def find_user(email):
     query = "MATCH (u:user) WHERE u.email = $email RETURN u"
     with tms_db.session() as session:
@@ -61,32 +64,7 @@ def find_user(email):
                 return None
         except Exception as e:
             msg = str(e)
-            abort(500, msg)
-            
-def create_user(first_name, last_name, email, phone, job_title, password):
-    query = '''
-                    CREATE (u:user {
-                            email: $email
-                            ,password: $password
-                            })
-                    MERGE (p:person {
-                        first_name: $first_name
-                        ,last_name: $last_name
-                        ,email: $email
-                        ,phone: $phone
-                        ,job_title: $job_title
-                        })
-                    CREATE (u)-[r:is]->(p)
-                    RETURN u,r,p
-                    '''
-    with tms_db.session() as session:
-            try:
-                session.run(query, email=email, password=password, first_name=first_name, last_name=last_name, phone=phone, job_title=job_title)
-                return True
-            except Exception as e:
-                msg = str(e)
-                abort(500, msg)
-
+            abort(500, msg)          
 
 def register_user(first_name, last_name, email, phone, job_title, password):
     if find_user(email):
@@ -173,7 +151,18 @@ def find_tags_by_email(email):
         except Exception as e:
             msg = str(e)
             abort(500, msg)
-    
+        
+def find_related_tags_by_name(name):
+    query = "MATCH (t:tag)-[:related]-(t2:tag) where t2.name = $name return t"
+    with tms_db.session() as session:
+        try:
+            result = session.run(query, name=name)
+            data = result.data()
+            return data
+        except Exception as e:
+            msg = str(e)
+            abort(500, msg)
+
 def find_tags_by_search(search):
      query =  '''
             MATCH (t:tag)
@@ -186,17 +175,6 @@ def find_tags_by_search(search):
      with tms_db.session() as session:
         try:
             result = session.run(query, {"search": search})
-            data = result.data()
-            return data
-        except Exception as e:
-            msg = str(e)
-            abort(500, msg)
-     
-def find_related_tags_by_name(name):
-    query = "MATCH (t:tag)-[:related]-(t2:tag) where t2.name = $name return t"
-    with tms_db.session() as session:
-        try:
-            result = session.run(query, name=name)
             data = result.data()
             return data
         except Exception as e:
@@ -611,3 +589,117 @@ def add_tag_by_reltype(tag, email, rel_type):
             tx.run(query, tag=tag, email=email)
         except:
             return abort(500)
+        
+def create_transfer(p_from,p_to,tag,date):
+    query = '''
+        merge (t:tag {name: $tag})
+        ON CREATE SET t.created = datetime(), t.last_modified = datetime()
+        with t
+        match (p_to:person) where p_to.email = $p_to
+        match (p_from:person) where p_from.email = $p_from
+        create (tx:transfer {date: $date, created: datetime(), last_modified: datetime()})
+        create (p_to)<-[:to]-(tx)<-[:from]-(p_from)
+        create (tx)-[:includes]->(t)
+        return tx
+    '''
+    with tms_db.session() as tx:
+        try:
+            tx.run(query, p_from=p_from, p_to=p_to, tag=tag, date=date)
+        except:
+            return abort(500)
+        
+def create_endorsement(elementid,email):
+    query = '''
+        match (s:skill), (p:person)
+        where elementid(s) = $elementid and p.email = $email
+        merge (p)-[r:endorses]->(s)
+        ON CREATE SET r.created = datetime()
+    '''
+    with tms_db.session() as tx:
+        try:
+            tx.run(query, elementid=elementid, email=email)
+        except:
+            return abort(500)
+        
+def create_task(desc, title, start_date, end_date, email, tags, collaborators):
+
+    query = '''
+        CREATE (t:task {created: datetime(), last_modified: datetime(), description: $desc, title: $title, start_date: $start_date, end_date: $end_date}) WITH t
+        MATCH (p:person) WHERE p.email = $email
+        CREATE (p)-[:works_on]->(t)
+        RETURN elementid(t) AS elementid
+    '''
+    query2 = '''
+        MATCH (t:task), (p:person) WHERE elementid(t) = $elementid and p.email = $collaborator
+        CREATE (p)-[:works_on]->(t) 
+    '''
+    query3 = '''
+        MERGE (tag:tag {name: $tag})
+        ON CREATE SET tag.created = datetime(), tag.last_modified = datetime()
+        with tag
+        MATCH (t:task) WHERE elementid(t) = $elementid
+        CREATE (t)-[:includes]->(tag)
+    '''
+    with tms_db.session() as tx:
+        try:
+            result = tx.run(query, desc=desc, title=title, start_date=start_date, end_date=end_date, email=email)
+            elementid = result.single()["elementid"]
+        except:
+            return abort(500) 
+        
+        for collaborator in  collaborators:
+            try:
+                tx.run(query2, collaborator=collaborator, elementid=elementid)
+            except:
+                return abort(500) 
+        for tag in tags:
+            try:
+                tx.run(query3, tag=tag, elementid=elementid)
+            except:
+                return abort(500)
+
+def create_skill(tag,desc,email):
+    query = '''
+        MERGE (t:tag {name: $tag})
+        ON CREATE SET t.created = datetime(), t.last_modified = datetime()
+        CREATE (s:skill {description: $desc, created: datetime(), last_modified: datetime()})
+        with s,t
+        MATCH (p:person) WHERE p.email = $email
+        MERGE (p)-[:has]->(s)-[:includes]->(t)
+    '''
+    with tms_db.session() as tx:
+        try:
+            tx.run(query, tag=tag, desc=desc, email=email)
+        except:
+            return abort(500)
+
+def remove_skill_by_tag(tag,email):
+    query = "match (t:tag)<-[r1:includes]-(s:skill)<-[r2:has]-(p:person) where t.name = $tag and p.email = $email delete r1,s,r2"
+
+    with tms_db.session() as tx:
+        try:
+            tx.run(query, tag=tag, email=email)
+        except:
+            return abort(500)
+        
+def remove_interest(tag,email,checked_values):
+    query = "match (t:tag)<-[r:is_interested_in]-(p:person) where t.name = $tag and p.email = $email delete r"
+
+    with tms_db.session() as tx:
+        for tag in checked_values:
+                    try:        
+                        tx.run(query, tag=tag, email=email)
+                    except:
+                        return abort(500)
+
+def check_login(email,password):
+    query = "MATCH (u:user) where u.email = $email return u.password, u.is_admin"
+
+    with tms_db.session() as tx:
+        try:        
+            result = tx.run(query, password=password, email=email)
+            record = result.single()
+            return record
+        except:
+            return abort(500)
+

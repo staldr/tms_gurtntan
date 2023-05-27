@@ -1,6 +1,5 @@
 import csv
-import bcrypt
-from flask import Flask, jsonify, redirect, render_template, request, flash, session, url_for
+from flask import Flask, redirect, render_template, request, flash, session, url_for
 from .models import *
 import json
 from werkzeug.utils import secure_filename
@@ -22,8 +21,6 @@ def admin():
     else:
         abort(403)
 
-
-
 @app.route("/register", methods=["POST","GET"])
 def register():
     if request.method == "POST":
@@ -34,7 +31,7 @@ def register():
         phone = request.form["phone"]
         job_title = request.form["job_title"]
         password = bcrypt.hashpw(request.form["password"].encode('utf-8'), salt)
-
+        create_person(first_name, last_name, email, phone, job_title)
         response = register_user(first_name, last_name, email, phone, job_title, password)
 
         if response == False:
@@ -54,25 +51,23 @@ def login():
     if request.method == "POST":
         email = request.form["email"]
         password = request.form["password"].encode('utf-8')
-                                                    
-        with tms_db.session() as tx:
-            result = tx.run("MATCH (u:user) where u.email = $email return u.password, u.is_admin", email=email)
-            record = result.single()
-            if record:
-                if bcrypt.checkpw(password, record['u.password']):
-                    session['user'] = email
-                    if record['u.is_admin'] == True:
-                        session['admin'] = True
-                    else:
-                        session['admin'] = False
-                    return redirect(url_for("person", email=session['user']))
+        record = check_login(email,password)
+
+        if record:
+            if bcrypt.checkpw(password, record['u.password']):
+                session['user'] = email
+                if record['u.is_admin'] == True:
+                    session['admin'] = True
                 else:
-                    flash("Invalid password.")
-                    return redirect(url_for("login"))
+                    session['admin'] = False
+                return redirect(url_for("person", email=session['user']))
             else:
-                    flash("User does not exist.") 
-                    return redirect(url_for("login"))
-        
+                flash("Invalid password.")
+                return redirect(url_for("login"))
+        else:
+                flash("User does not exist.") 
+                return redirect(url_for("login"))
+    
     elif request.method == "GET":
         if "user" in session:
             return redirect(url_for("person", email=session['user']))
@@ -144,7 +139,6 @@ def explore():
     followed_tags = get_popular_tags("is_interested_in")
     worked_on_tags = get_popular_tags("works_on")
     common_skills = get_popular_tags("has")
-    #uncommon_skills = get_unpopular_tags("has")
     recently_added_tags = get_recently_added_tags() 
     transfers = get_transfer()
     transfer_tag_count = get_transfer_tag_count(limit)
@@ -230,52 +224,27 @@ def remove_tag():
     else:
         tag = request.form["tag"].lower().strip()
 
-        
-    if request.method == "POST":
-        with tms_db.session() as tx:
-            if rel_type == "is_interested_in":
-                query = "match (t:tag)<-[r:{}]-(p:person) where t.name = $tag and p.email = $email delete r".format(rel_type)
-                for tag in checked_values:
-                    try:        
-                        tx.run(query, tag=tag, email=email)
-                    except:
-                        return abort(500)
-            elif rel_type == "has":
-                query = "match (t:tag)<-[r1:includes]-(s:skill)<-[r2:has]-(p:person) where t.name = $tag and p.email = $email delete r1, r2, s"
-                tx.run(query, tag=tag, email=email)
-            return redirect(request.referrer)
+    if rel_type == "is_interested_in":
+        remove_interest(tag,email,checked_values)
+    
+    return redirect(request.referrer)
         
 @app.route("/remove_skill", methods=["POST"])
 def remove_skill():
     email = session['user']
     tag = request.args.get('tag')
-    query = "match (t:tag)<-[r1:includes]-(s:skill)<-[r2:has]-(p:person) where t.name = $tag and p.email = $email delete r1,s,r2"
-    if request.method == "POST":
-        with tms_db.session() as tx:
-            try:        
-                tx.run(query, tag=tag, email=email)
-            except:
-                return abort(500) 
-        return redirect(request.referrer)
+    remove_skill_by_tag(tag,email)
+
+    return redirect(request.referrer)
     
 @app.route("/add_skill", methods=["POST"])
 def add_skill():
     email = session['user']
-    #tag = request.form["tag"].lower()
     tag = request.form["tag"].lower()
     desc = request.form["desc"]
-    query = '''
-        MERGE (t:tag {name: $tag})
-        ON CREATE SET t.created = datetime(), t.last_modified = datetime()
-        CREATE (s:skill {description: $desc, created: datetime(), last_modified: datetime()})
-        with s,t
-        MATCH (p:person) WHERE p.email = $email
-        MERGE (p)-[:has]->(s)-[:includes]->(t)
-    '''
-    if request.method == "POST":
-        with tms_db.session() as tx:
-            tx.run(query, tag=tag, desc=desc, email=email)
-        return redirect(request.referrer)
+    create_skill(tag,desc,email)
+
+    return redirect(request.referrer)
     
 @app.route("/add_task", methods=["POST"])
 def add_task():
@@ -284,37 +253,10 @@ def add_task():
     title = request.form["title"]
     start_date = request.form["start_date"]
     end_date = request.form["end_date"]
-    '''
-    tags_string = request.form["tag"].lower()
-    tags = set(tags_string.split(";")) 
-    '''
     collaborators = request.form.getlist("collaborators")
     tags = request.form.getlist("tags")
 
-    query = '''
-        CREATE (t:task {created: datetime(), last_modified: datetime(), description: $desc, title: $title, start_date: $start_date, end_date: $end_date}) WITH t
-        MATCH (p:person) WHERE p.email = $email
-        CREATE (p)-[:works_on]->(t)
-        RETURN elementid(t) AS elementid
-    '''
-    query2 = '''
-        MATCH (t:task), (p:person) WHERE elementid(t) = $elementid and p.email = $collaborator
-        CREATE (p)-[:works_on]->(t) 
-    '''
-    query3 = '''
-        MERGE (tag:tag {name: $tag})
-        ON CREATE SET tag.created = datetime(), tag.last_modified = datetime()
-        with tag
-        MATCH (t:task) WHERE elementid(t) = $elementid
-        CREATE (t)-[:includes]->(tag)
-    '''
-    with tms_db.session() as tx:
-        result = tx.run(query, desc=desc, title=title, start_date=start_date, end_date=end_date, email=email)
-        elementid = result.single()["elementid"]
-        for collaborator in  collaborators:
-            tx.run(query2, collaborator=collaborator, elementid=elementid)
-        for tag in tags:
-            tx.run(query3, tag=tag, elementid=elementid)
+    create_task(desc, title, start_date, end_date, email,  tags, collaborators)
 
     return redirect(request.referrer)
     
@@ -324,41 +266,17 @@ def add_transfer():
     p_to = request.form["to"]
     tag = request.form["tag"].lower().strip()
     date = request.form["date"]
-    query = '''
-        merge (t:tag {name: $tag})
-        ON CREATE SET t.created = datetime(), t.last_modified = datetime()
-        with t
-        match (p_to:person) where p_to.email = $p_to
-        match (p_from:person) where p_from.email = $p_from
-        create (tx:transfer {date: $date, created: datetime(), last_modified: datetime()})
-        create (p_to)<-[:to]-(tx)<-[:from]-(p_from)
-        create (tx)-[:includes]->(t)
-        return tx
-    '''
-    if request.method == "POST":
-        with tms_db.session() as tx:
-            tx.run(query, p_from=p_from, p_to=p_to, tag=tag, date=date)
-        return redirect(request.referrer)
+    create_transfer(p_from,p_to,tag,date)
+
+    return redirect(request.referrer)
+
     
 @app.route("/endorse_skill", methods=["POST"])
 def endorse_skill():
-    if "user" not in session:
-        pass
-        # TODO if users are not logged in flash message or don't show button at all. (handle in html)
-
     email = session['user']
     elementid = request.args.get('elementid')
-    query = '''
-        match (s:skill), (p:person)
-        where elementid(s) = $elementid and p.email = $email
-        merge (p)-[r:endorses]->(s)
-        ON CREATE SET r.created = datetime()
-    '''
-    with tms_db.session() as tx:
-        try:        
-            tx.run(query, elementid=elementid, email=email)
-        except:
-            return abort(500) # TODO: Exception Handling ausbauen
+    create_endorsement(elementid,email)
+
     return redirect(request.referrer)
 
 @app.route("/tags", methods=["GET", "POST"])
