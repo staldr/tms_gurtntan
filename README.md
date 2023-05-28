@@ -1,4 +1,4 @@
-# Bedienungsanleitung
+# Installationsanleitung
 
 ## Voraussetzungen
 * Docker Desktop Installation
